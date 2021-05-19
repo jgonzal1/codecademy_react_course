@@ -1,0 +1,9 @@
+.adjust-top-60p-viewport {
+    max-width: 97vw;
+    max-height: 60vh;
+}
+.center-horizontally {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
