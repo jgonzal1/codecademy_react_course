@@ -16,3 +16,4 @@ libs/pubnub.min.js
 libs/soundfontPlayer.min.js
 libs/tone.js
 libs/webrtcAdapter.js
+my-app/*
