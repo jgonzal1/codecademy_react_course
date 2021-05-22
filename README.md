@@ -1,2 +1,3 @@
-# codecademy_react_course
-Codecademy React.JS course
+# React course
+
+Codecademy and SoloLearn React.JS course files

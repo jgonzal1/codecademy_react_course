@@ -40,18 +40,21 @@
             const alt = (p50?"legolas":"galadrieu");
             e.target.setAttribute('alt', alt);
         }
-        const kitty = (
+        const image = (
             <img
                 src="img/react.png"
                 alt="react"
-                className="adjust-top-60p-viewport center-horizontally"
+                className="adjust-top-60p-viewport center-horizontally App-logo"
                 onClick={makeLotr}
             />
         );
         //#endregion
 
-        ReactDOM.render(<ul>{peopleList}</ul>,document.getElementById('exercise2'));
-        ReactDOM.render(kitty, document.getElementById('exercise1'));
+        ReactDOM.render(
+            <ul>{peopleList}</ul>,
+            document.getElementById('exercise2')
+        );
+        ReactDOM.render(image, document.getElementById('exercise1'));
     </script>
 </body>
 
