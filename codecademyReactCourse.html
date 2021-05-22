@@ -2,60 +2,89 @@
 <html>
 
 <head>
-    <meta charset="UTF-8" />
-    <title>React Course</title>
-    <link rel="shortcut icon" href="img/react.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style/style.css">
-    <script src="libs/react.development.js"></script>
-    <script src="libs/reactDom.development.js"></script>
-    <script src="libs/babel.min.js">
-        // Note: for a production-ready setup with JSX:
-        // https://reactjs.org/docs/add-react-to-a-website.html#add-jsx-to-a-project
-        // In a larger project, you can use an integrated toolchain that includes JSX instead:
-        // https://reactjs.org/docs/create-a-new-react-app.html
-        // You can also use React without JSX, in which case you can remove Babel:
-        // https://reactjs.org/docs/react-without-jsx.html
-    </script>
+  <meta charset="UTF-8" />
+  <title>React Course</title>
+  <link rel="shortcut icon" href="img/react.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style/style.css">
+  <script src="libs/react.development.js"></script>
+  <script src="libs/reactDom.development.js"></script>
+  <script src="libs/babel.min.js">
+    // Note: for a production-ready setup with JSX:
+    // https://reactjs.org/docs/add-react-to-a-website.html#add-jsx-to-a-project
+    // In a larger project, you can use an integrated toolchain that includes JSX instead:
+    // https://reactjs.org/docs/create-a-new-react-app.html
+    // You can also use React without JSX, in which case you can remove Babel:
+    // https://reactjs.org/docs/react-without-jsx.html
+  </script>
 </head>
 
 <body>
-    <div id="root">
-        <div id="exercise1"></div>
-        <div id="exercise2"></div>
-    </div>
-    <script type="text/babel">
-        //#region JSX map
-        const people = ['Uldaimonthir', 'Legolas', 'Galadrieu'];
-        const peopleList = people.map((person, i) => <li key={'person_' + i}>{person}</li>);
-        //#endregion
-        //#region f(x)s for imgs, ternaries and &&
-        function makeLotr(e) {
-            const p50 = Math.random() < 0.5;
-            const url = ( p50 ?
-                "img/m.png" :
-                "img/f.png"
-            );
-            e.target.setAttribute('src', url);
-            // { p50 && algo } renderiza el algo sólo si p50 es verdadero
-            const alt = (p50?"legolas":"galadrieu");
-            e.target.setAttribute('alt', alt);
-        }
-        const image = (
-            <img
-                src="img/react.png"
-                alt="react"
-                className="adjust-top-60p-viewport center-horizontally App-logo"
-                onClick={makeLotr}
-            />
-        );
-        //#endregion
+  <div id="root">
+    <div id="exercise1"></div>
+    <div id="exercise2"></div>
+  </div>
+  <script type="text/babel">
+    //#region JSX map
+    const people = ['Uldaimonthir', 'Legolas', 'Galadrieu'];
+    const peopleList = people.map((person, i) => <li key={'person_' + i}>{person}</li>);
+    //#endregion
+    //#region f(x)s for imgs, ternaries and &&
+    function makeLotr(e) {
+      const p50 = Math.random() < 0.5;
+      const url = ( p50 ?
+        "img/m.png" :
+        "img/f.png"
+      );
+      e.target.setAttribute('src', url);
+      // { p50 && algo } renderiza el algo sólo si p50 es verdadero
+      const alt = (p50?"legolas":"galadrieu");
+      e.target.setAttribute('alt', alt);
+    }
+    const image = (
+      <img
+        src="img/react.png"
+        alt="react"
+        className="adjust-top-60p-viewport center-horizontally App-logo"
+        onClick={makeLotr}
+      />
+    );
+    //#endregion
 
-        ReactDOM.render(
-            <ul>{peopleList}</ul>,
-            document.getElementById('exercise2')
+    ReactDOM.render(image, document.getElementById('exercise1'));
+
+    ReactDOM.render(
+      <ul>{peopleList}</ul>,
+      document.getElementById('exercise2')
+    );
+    ReactDOM.render(<Random/>, document.getElementById('exercise3'));
+
+    //#region vars & functions in render IN class
+    class Random extends React.Component {
+      render() {
+        const n = Math.floor(Math.random() * 10 + 1);
+        return <h1>The number is {n}!</h1>;
+      }
+    }
+
+    const friends = [{
+      title: "Hey Guys! Wait Up!",
+      src: "https://content.codecademy.com/courses/React/react_photo-earnestfrog.jpg"
+    }];
+    // New component class starts here:
+    class Friend extends React.Component {
+      render() {
+        let friend = friends[1];
+        return (
+          <div>
+            <h1>{friend.title}</h1>
+            <img src={friend.src}/>
+          </div>
         );
-        ReactDOM.render(image, document.getElementById('exercise1'));
-    </script>
+      }
+    }
+    ReactDOM.render(<Friend/>, document.getElementById("app"));
+    //#endregion
+  </script>
 </body>
 
 </html>
