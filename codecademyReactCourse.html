@@ -19,15 +19,22 @@
 </head>
 
 <body>
-  <div id="root">
-    <div id="exercise1"></div>
-    <div id="exercise2"></div>
-  </div>
+  <!-- img placeholder https://source.unsplash.com/random/1200x400 -->
+  <table id="root">
+    <tr>
+      <td id="exercise1" rowSpan="4" style="overflow: hidden"></td>
+      <td id="exercise2" rowSpan="4"></td>
+      <td id="exercise3" style="height:1em"></td>
+    </tr>
+    <tr>
+      <td id="exercise4" class="parent-of-h100" style="height:2em"></td>
+    </tr><tr>
+      <td id="exercise5" style="height:6em"></td>
+    </tr><tr>
+      <td id="exercise6"></td>
+    </tr>
+  </table>
   <script type="text/babel">
-    //#region JSX map
-    const people = ['Uldaimonthir', 'Legolas', 'Galadrieu'];
-    const peopleList = people.map((person, i) => <li key={'person_' + i}>{person}</li>);
-    //#endregion
     //#region f(x)s for imgs, ternaries and &&
     function makeLotr(e) {
       const p50 = Math.random() < 0.5;
@@ -49,22 +56,7 @@
       />
     );
     //#endregion
-
     ReactDOM.render(image, document.getElementById('exercise1'));
-
-    ReactDOM.render(
-      <ul>{peopleList}</ul>,
-      document.getElementById('exercise2')
-    );
-    ReactDOM.render(<Random/>, document.getElementById('exercise3'));
-
-    //#region vars & functions in render IN class
-    class Random extends React.Component {
-      render() {
-        const n = Math.floor(Math.random() * 10 + 1);
-        return <h1>The number is {n}!</h1>;
-      }
-    }
 
     const friends = [{
       title: "Hey Guys! Wait Up!",
@@ -73,17 +65,81 @@
     // New component class starts here:
     class Friend extends React.Component {
       render() {
-        let friend = friends[1];
+        let friend = friends[0];
         return (
           <div>
-            <h1>{friend.title}</h1>
-            <img src={friend.src}/>
+            <div>{friend.title}</div>
+            <img alt={friends.title} src={friend.src} style={{maxWidth: 33+"vw"}}/>
           </div>
         );
       }
     }
-    ReactDOM.render(<Friend/>, document.getElementById("app"));
+    ReactDOM.render(<Friend/>, document.getElementById("exercise2"));
+
+    // vars & functions in render IN class
+    class Random extends React.Component {
+      render() {
+        const n = Math.floor(Math.random() * 10 + 1);
+        return <div>The number is {n}!</div>;
+      }
+    }
+    ReactDOM.render(<Random/>, document.getElementById('exercise3'));
+
+
+
+    // Usage of getters and this within classes
+    class IceCreamGuy extends React.Component {
+      get food() {
+        return 'ice cream';
+      }
+      onHovering() {
+        console.trace("trigger onHovering")
+      }
+      onMouseEnter() {
+        document.getElementsByClassName("hover-div")[0].style.display = "inline";
+      }
+      onMouseLeave() {
+        document.getElementsByClassName("hover-div")[0].style.display = "none";
+      }
+      render() {
+        return <div className="h100"
+          onMouseOver={this.onHovering}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+        >
+          <div>I like {this.food} when you hover.</div>
+          <div className="hover-div">Stop it! Stop hovering!</div>
+        </div>;
+      }
+    }
+    ReactDOM.render(<IceCreamGuy/>, document.getElementById("exercise4"));
+
+    //#region JSX Map
+        const people = ['Uldaimonthir', 'Legolas', 'Galadrieu'];
+    const peopleList = people.map((person, i) => <li key={'person_' + i}>{person}</li>);
+    class PeopleUl extends React.Component {
+      render() {
+        return <ul>{peopleList}</ul>
+      }
+    }
     //#endregion
+    class PropsDisplayer extends React.Component {
+      render() {
+        const stringProps = JSON.stringify(this.props);
+        return (
+          <div>
+            <div>Check out this props object</div>
+            <div>{stringProps}</div>
+            <div>Hello {this.props.firstName}</div>
+            <PeopleUl/>
+          </div>
+        );
+      }
+    }
+    ReactDOM.render(
+      <PropsDisplayer firstName="Pedro"/>,
+      document.getElementById('exercise5')
+    )
   </script>
 </body>
 

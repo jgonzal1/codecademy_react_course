@@ -1,3 +1,10 @@
+img {
+  border-radius: 0.5em;
+}
+ul {
+  margin: 0;
+}
+
 .App-logo {
   height: 40vmin;
 }
@@ -23,4 +30,32 @@
   margin-left: auto;
   margin-right: auto;
   display: block;
+}
+
+.hover-div {
+  display: none;
+}
+.hoverable:hover + .hover-div {
+  display: block;
+}
+
+.parent-of-h100 {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+.h100 {
+  height: 100%;
+  width: 90%;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+#root tr td {
+  border: 1px dotted #00000066;
+  border-radius: 1em;
+  margin: 0em auto 0.5em auto;
+  padding: 0.5em;
+  width: 33vw;
 }
