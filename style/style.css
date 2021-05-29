@@ -1,8 +1,12 @@
+td {
+  overflow: hidden;
+}
 img {
   border-radius: 0.5em;
 }
 ul {
   margin: 0;
+  padding-left: 1em;
 }
 
 .App-logo {
@@ -46,7 +50,7 @@ ul {
 }
 .h100 {
   height: 100%;
-  width: 90%;
+  width: 97%;
   position: absolute;
   right: 0;
   top: 0;

@@ -16,130 +16,194 @@
     // You can also use React without JSX, in which case you can remove Babel:
     // https://reactjs.org/docs/react-without-jsx.html
   </script>
+
 </head>
 
 <body>
   <!-- img placeholder https://source.unsplash.com/random/1200x400 -->
   <table id="root">
     <tr>
-      <td id="exercise1" rowSpan="4" style="overflow: hidden"></td>
-      <td id="exercise2" rowSpan="4"></td>
-      <td id="exercise3" style="height:1em"></td>
+      <td id="exercise1" rowSpan="5" style="overflow:hidden">1</td>
+      <td id="exercise2" rowSpan="4" style="overflow:hidden">2</td>
+      <td id="exercise3" style="height:1em">3</td>
     </tr>
     <tr>
-      <td id="exercise4" class="parent-of-h100" style="height:2em"></td>
+      <td id="exercise4" class="parent-of-h100" style="height:1.6em">4</td>
     </tr><tr>
-      <td id="exercise5" style="height:6em"></td>
+      <td id="exercise5" style="height:6em">5</td>
     </tr><tr>
-      <td id="exercise6"></td>
+      <td id="exercise6">6<iframe src="sololearnReactCourse.html" frameborder="0" style="height:2.5em"></iframe></td>
+    </tr><tr>
+      <td id="exercise7">7</td>
+      <td id="exercise8">8</td>
+    </tr><tr>
+      <td id="exercise9">9</td>
+      <td id="exercise10">10</td>
+      <td id="exercise11">11</td>
     </tr>
   </table>
   <script type="text/babel">
-    //#region f(x)s for imgs, ternaries and &&
-    function makeLotr(e) {
-      const p50 = Math.random() < 0.5;
-      const url = ( p50 ?
-        "img/m.png" :
-        "img/f.png"
+    (function codecademyReactCourse() {
+      //#region F(x)s for imgs, ternaries and &&
+      function makeLotr(e) {
+        const p50 = Math.random() < 0.5;
+        const url = ( p50 ?
+          "img/m.png" :
+          "img/f.png"
+        );
+        e.target.setAttribute('src', url);
+        // { p50 && algo } renderiza el algo sólo si p50 es verdadero
+        const alt = (p50?"legolas":"galadrieu");
+        e.target.setAttribute('alt', alt);
+      }
+      const image = (
+        <>
+        1
+        <img
+          src="img/react.png"
+          alt="react"
+          className="adjust-top-60p-viewport center-horizontally App-logo"
+          onClick={makeLotr}
+        />
+        </>
       );
-      e.target.setAttribute('src', url);
-      // { p50 && algo } renderiza el algo sólo si p50 es verdadero
-      const alt = (p50?"legolas":"galadrieu");
-      e.target.setAttribute('alt', alt);
-    }
-    const image = (
-      <img
-        src="img/react.png"
-        alt="react"
-        className="adjust-top-60p-viewport center-horizontally App-logo"
-        onClick={makeLotr}
-      />
-    );
-    //#endregion
-    ReactDOM.render(image, document.getElementById('exercise1'));
+      ReactDOM.render(image, document.getElementById('exercise1'));
+      //#endregion
 
-    const friends = [{
-      title: "Hey Guys! Wait Up!",
-      src: "https://content.codecademy.com/courses/React/react_photo-earnestfrog.jpg"
-    }];
-    // New component class starts here:
-    class Friend extends React.Component {
-      render() {
-        let friend = friends[0];
-        return (
-          <div>
-            <div>{friend.title}</div>
-            <img alt={friends.title} src={friend.src} style={{maxWidth: 33+"vw"}}/>
-          </div>
-        );
+      //#region Component classes and with vars
+      const friends = [{
+        title: "Hey Guys! Wait Up!",
+        src: "https://content.codecademy.com/courses/React/react_photo-earnestfrog.jpg"
+      }];
+      class Friend extends React.Component {
+        render() {
+          let friend = friends[0];
+          return (
+            <div>
+              <div>2 {friend.title}</div>
+              <img alt={friends.title} src={friend.src} style={{maxWidth: 33+"vw"}}/>
+            </div>
+          );
+        }
       }
-    }
-    ReactDOM.render(<Friend/>, document.getElementById("exercise2"));
+      ReactDOM.render(<Friend/>, document.getElementById("exercise2"));
+      //#endregion
 
-    // vars & functions in render IN class
-    class Random extends React.Component {
-      render() {
-        const n = Math.floor(Math.random() * 10 + 1);
-        return <div>The number is {n}!</div>;
+      //#region Vars & functions in render IN class, this, and defaultProps
+      class Random extends React.Component {
+        render() {
+          const n = Math.floor(Math.random() * this.props.lim + 1);
+          return <div>3 A random number until {this.props.lim} is {n}!</div>;
+        }
       }
-    }
-    ReactDOM.render(<Random/>, document.getElementById('exercise3'));
+      Random.defaultProps = { lim: 10 }; 
+      ReactDOM.render(<Random/>, document.getElementById('exercise3'));
+      //#endregion
 
+      //#region Usage of getters and functions (exemplifying events) within classes
+      class Div extends React.Component {
+        get food() {
+          return 'ice cream';
+        }
+        onMouseEnter() {
+          document.getElementsByClassName("hover-div")[0].style.display = "inline";
+        }
+        onMouseLeave() {
+          document.getElementsByClassName("hover-div")[0].style.display = "none";
+        }
+        render() {
+          return (
+            <div onMouseOver={this.props.DivOH}
+              className="h100"
+              onMouseEnter={this.onMouseEnter}
+              onMouseLeave={this.onMouseLeave}
+            >
+              <div>4 I like {this.food} when you hover.</div>
+              <div className="hover-div">Stop it! Stop hovering!</div>
+            </div>
+          );
+        }
+      }
+      class TriggerOnHovering extends React.Component {
+        onHovering() {
+          console.trace("Trigger onHovering");
+        }
+        render() {
+          return <Div DivOH={this.onHovering}/>;
+        }
+      }
+      ReactDOM.render(<TriggerOnHovering/>, document.getElementById("exercise4"));
+      //#endregion
 
+      //#region Logic with props, booleans usage and JSX map
+      const people = ['Uldaimonthir', 'Legolas', 'Galadrieu'];
+      const peopleList = people.map((person, i) => <li key={'person_' + i}>{person}</li>);
+      class PeopleUl extends React.Component {
+        render() {
+          return <ul>{peopleList}</ul>
+        }
+      }
+      class PropsDisplayer extends React.Component {
+        render() {
+          const stringProps = JSON.stringify(this.props);
+          if (this.props.signedIn === false) {
+            return <div>5 You need to sign in</div>;
+          }
+          return (
+            <div>
+              <div>5 Check out this props object</div>
+              <div>{stringProps}</div>
+              <div>Hello {this.props.firstName}</div>
+              <PeopleUl/>
+            </div>
+          );
+        }
+      }
+      ReactDOM.render(
+        <PropsDisplayer firstName="Pedro" signedIn={true}/>,
+        document.getElementById('exercise5')
+      )
+      //#endregion
 
-    // Usage of getters and this within classes
-    class IceCreamGuy extends React.Component {
-      get food() {
-        return 'ice cream';
-      }
-      onHovering() {
-        console.trace("trigger onHovering")
-      }
-      onMouseEnter() {
-        document.getElementsByClassName("hover-div")[0].style.display = "inline";
-      }
-      onMouseLeave() {
-        document.getElementsByClassName("hover-div")[0].style.display = "none";
-      }
-      render() {
-        return <div className="h100"
-          onMouseOver={this.onHovering}
-          onMouseEnter={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}
-        >
-          <div>I like {this.food} when you hover.</div>
-          <div className="hover-div">Stop it! Stop hovering!</div>
-        </div>;
-      }
-    }
-    ReactDOM.render(<IceCreamGuy/>, document.getElementById("exercise4"));
+      //iframing HTML with babel
 
-    //#region JSX Map
-        const people = ['Uldaimonthir', 'Legolas', 'Galadrieu'];
-    const peopleList = people.map((person, i) => <li key={'person_' + i}>{person}</li>);
-    class PeopleUl extends React.Component {
-      render() {
-        return <ul>{peopleList}</ul>
+      //#region Child props inheritance
+      class List extends React.Component {
+        render() {
+          let titleText = `Favorite ${this.props.type}`;
+          if (this.props.children instanceof Array) {
+            titleText += 's';
+          }
+          return (
+            <div>
+              <div>{titleText}</div>
+              <ul>{this.props.children}</ul>
+            </div>
+          );
+        }
       }
-    }
-    //#endregion
-    class PropsDisplayer extends React.Component {
-      render() {
-        const stringProps = JSON.stringify(this.props);
-        return (
-          <div>
-            <div>Check out this props object</div>
-            <div>{stringProps}</div>
-            <div>Hello {this.props.firstName}</div>
-            <PeopleUl/>
-          </div>
-        );
+      class App extends React.Component {
+        render() {
+          return (
+            <div>
+              <span>7</span>
+              <List type='Living Musician'>
+                <li>Sachiko M</li>
+                <li>Harvey Sid Fisher</li>
+              </List>
+              <List type='Living Cat Musician'>
+                <li>Nora the Piano Cat</li>
+              </List>
+            </div>
+          );
+        }
       }
-    }
-    ReactDOM.render(
-      <PropsDisplayer firstName="Pedro"/>,
-      document.getElementById('exercise5')
-    )
+      ReactDOM.render(
+        <App />, 
+        document.getElementById('exercise7')
+      );
+      //#endregion
+    })();
   </script>
 </body>
 
