@@ -114,8 +114,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     const previousTab = tabs.filter(
       tab => tab.label === tabName
     )[0];
-    let previousCustomTabCheckers = [];
-    if(previousTab.length) {
+    let previousCustomTabCheckers = {};
+    if(!!previousTab && previousTab.length) {
       previousCustomTabCheckers = previousTab.map(
         t => {
           return {
@@ -137,7 +137,7 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       "newCustomTab", newCustomTabCheckers
     );
     if(
-      previousCustomTabCheckers.length &&
+      Object.keys(previousCustomTabCheckers).length &&
       previousCustomTabCheckers["testId"] === newCustomTabCheckers["testId"] &&
       previousCustomTabCheckers["isJavascript"] === newCustomTabCheckers["isJavascript"] &&
       previousCustomTabCheckers["enabled"] === newCustomTabCheckers["enabled"]
@@ -152,7 +152,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       "isJavascript": isJavascript,
       "enabled": enabled,
     };
-    if(!previousTab.length) {
+    console.log("previousTab", previousTab);
+    if(!previousTab) {
       console.log("Inserting tab", tabName);
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
@@ -192,11 +193,10 @@ class AuiTabs extends React.Component<MyProps, MyState> {
         }
       });
     }
-    console.log("Tabs labels to update", tabs.map(t=>t.label));
     this.setState(
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
     );
-    console.log("Tabs labels updated on state", this.state.tabs.map(t=>t.label));
+    console.log("Tabs labels now:\n", tabs.map(t=>t.label), "\nand on state:\n", this.state.tabs.map(t=>t.label));
     ////@ts-ignore
     //workingTab.innerText = tabName;
   }
@@ -204,32 +204,33 @@ class AuiTabs extends React.Component<MyProps, MyState> {
   deleteTab() {
     //@ts-ignore
     const tabName = document.getElementById("tabName").value;
+    console.log("tabName", tabName);
     if(tabName.search("\"")!==-1) {
       alert("Please select a tab name without quotes");
       return;
     }
     const tabs = this.state.tabs;
-    console.log("tabs on deleteTab", tabs);
-    if(
-      !tabs.filter(
-        tab => tab.label === tabName
-      )[0].length
-    ) {
+    console.log("tabs on deleteTab", tabs, "now checking tabName vs each tabs.label");
+    const tabToDeleteAsChild = tabs.filter(
+      tab => tab.label === tabName
+    );
+    
+    if(!tabToDeleteAsChild.length) {
       console.log("The provided tab", tabName, "does not exist");
       return;
-    }
+    } 
+    const tabsAfterDeletion = tabs.filter(tab => tab.label!==tabName);
+    console.log("tabsAfterDeletion", tabsAfterDeletion);
+    let stateToModify = {...this.state};
+    console.log("stateToModify", stateToModify);
+    stateToModify.tabs = tabsAfterDeletion;
+    console.log("state modified", stateToModify);
     //const tabInDom = document.querySelector(`[data-testid="${tabName}Tab"]`);
     //if(!tabInDom) {
     //  console.log("The provided tab", tabName, "does not exist");
     //  return;
     //}
-    console.log("Tabs labels before delete", tabs.map(t=>t.label));
-    this.setState( (state) => ({
-      tabs: Object.assign(
-        [], state.tabs,
-        tabs.filter(tab => tab.label!==tabName)
-      )
-    }) );
+    this.setState( stateToModify );
     let tabsDom = document.querySelectorAll('[role="tablist"]')[0].children;
     Array.from(tabsDom).map(
       k => k.setAttribute(
@@ -392,8 +393,23 @@ class ModalInterface extends React.Component<MyProps, MyState> {
       text2: ""
     };
   }
+  /**
+   * ```json
+   * "state": {
+   *   "css": "string",
+   *   "enableCrudButtons": "boolean",
+   *   "loaded": "boolean|undefined",
+   *   "javascript": "string",
+   *   "selectedTab": "string",
+   *   "tabs": "any",
+   *   "text1": "string",
+   *   "text2": "string",
+   * };
+   * ```
+   */
   onChange(e) {
     this.setState(
+      //@ts-ignore-next-line
       {[e.target.id]: e.target.value},
       () => {
         if (this.state.text1 && this.state.text2) {
