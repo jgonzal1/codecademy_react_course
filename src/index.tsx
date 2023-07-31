@@ -42,7 +42,13 @@ class _ extends React.Component<MyProps, MyState> {
       javascript: "",
       loaded: false,
       selectedTab: "javascript",
-      tabs: [{ label: "-", testId: "-Tab", content: <></>, enabled: true }],
+      tabs: [{
+        content: <></>,
+        enabled: true,
+        label: "-",
+        tabStyle: {},
+        testId: "-Tab"
+      }],
       text1: "",
       text2: ""
     }
@@ -71,7 +77,13 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       enableCrudButtons: false,
       javascript: "",
       selectedTab: "javascript",
-      tabs: [{ label: "-", testId: "-Tab", content: <></>, enabled: true }],
+      tabs: [{
+        content: <></>,
+        enabled: true,
+        label: "-",
+        tabStyle: {},
+        testId: "-Tab"
+      }],
       text1: "",
       text2: ""
     }
@@ -110,7 +122,7 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     //@ts-ignore
     const enabled = document.getElementById("enabled").checked;
     let tabs = this.state.tabs;
-    console.log("tabs on upsertTab", tabs);
+    console.log(`Tabs on upsertTab: ${tabs.map(t=>t.label)}.`);
     const previousTab = tabs.filter(
       tab => tab.label === tabName
     )[0];
@@ -152,9 +164,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       "isJavascript": isJavascript,
       "enabled": enabled,
     };
-    console.log("previousTab", previousTab);
     if(!previousTab) {
-      console.log("Inserting tab", tabName);
+      console.log("Inserting tab", tabName, "\n\n");
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
       Array.from(domTabs).map(k=>
@@ -184,7 +195,7 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       ToDo textAreas are written in renderCont()
       */
     } else {
-      console.log("Modifying tab", tabName);
+      console.log("Modifying tab", tabName, "\n\n");
       tabs = tabs.map(existingTab => {
         if(existingTab.label === tabName) {
           return tabToUpsert;
@@ -196,7 +207,6 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     this.setState(
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
     );
-    console.log("Tabs labels now:\n", tabs.map(t=>t.label), "\nand on state:\n", this.state.tabs.map(t=>t.label));
     ////@ts-ignore
     //workingTab.innerText = tabName;
   }
@@ -204,13 +214,11 @@ class AuiTabs extends React.Component<MyProps, MyState> {
   deleteTab() {
     //@ts-ignore
     const tabName = document.getElementById("tabName").value;
-    console.log("tabName", tabName);
     if(tabName.search("\"")!==-1) {
       alert("Please select a tab name without quotes");
       return;
     }
     const tabs = this.state.tabs;
-    console.log("tabs on deleteTab", tabs, "now checking tabName vs each tabs.label");
     const tabToDeleteAsChild = tabs.filter(
       tab => tab.label === tabName
     );
@@ -220,11 +228,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       return;
     } 
     const tabsAfterDeletion = tabs.filter(tab => tab.label!==tabName);
-    console.log("tabsAfterDeletion", tabsAfterDeletion);
     let stateToModify = {...this.state};
-    console.log("stateToModify", stateToModify);
     stateToModify.tabs = tabsAfterDeletion;
-    console.log("state modified", stateToModify);
     //const tabInDom = document.querySelector(`[data-testid="${tabName}Tab"]`);
     //if(!tabInDom) {
     //  console.log("The provided tab", tabName, "does not exist");
@@ -238,9 +243,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
         (tabs.length-1).toString()
       )
     );
-    console.log("Tabs labels updated on state", this.state.tabs.map(t=>t.label));
     //tabInDom.remove();
-    console.log("Deleted tab", tabName);
+    console.log(`Deleted tab ${tabName}.\n`);
   }
 
   manageAdditionalTabs() {
@@ -291,13 +295,14 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     return (<div>
       <p>{isJavascript ?
         <span>
-          Remember to add clear javascript, and do not use
-          {"<"}script{">"} or other HTML tags.
-          A good thing is to run the js trough a validator
-          before saving (e.g. https://codebeautify.org/jsvalidate).
+          Remember to add clear javascript, and do not use&nbsp;
+          <code>{"<"}script{">"}</code> or other HTML tags.<br/>
+          As a good practice, run the js trough a validator
+          such as <a href="https://codebeautify.org/jsvalidate"
+          >code beautify</a> before saving.
         </span>:
-        null}</p>
-      <br/>
+        null}
+      </p>
 
       <textarea
         style={{"width": "100%", "height": "320px"}}
@@ -318,8 +323,7 @@ class AuiTabs extends React.Component<MyProps, MyState> {
   render() {
 
     if(this.state.loaded && this.state.tabs) {
-      console.log("AuiTabs.state on render");
-      console.log({
+      console.log("AuiTabs.state on render\n", {
         "css":this.state.css
         ,"enableCrudButtons": this.state.enableCrudButtons
         ,"javascript":this.state.javascript
@@ -328,10 +332,11 @@ class AuiTabs extends React.Component<MyProps, MyState> {
         ,"text2":this.state.text2
       });
       const tabs = this.state.tabs;
-      console.log("tabs.label");
-      console.log(this.state.tabs.map(t=>t.label));
+      console.log("  tabs.label\n", this.state.tabs.map(t=>t.label), "\n\n");
       const tabHeaders = tabs.map((val) => (
-        <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>{val.label}</Tab>
+        <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
+          <span style={val.tabStyle}>{val.label}</span>
+        </Tab>
       ));
       const tabPanels = tabs.map((val) => (
         <TabPanel testId={val.testId+"TabPanel"} key={val.testId+"TabPanel"}>
@@ -342,9 +347,7 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       ));
       return (<React.Fragment>
         <Tabs onChange = {
-            (index) => console.log(
-              'Selected Tab #', index + 1
-            )
+            (index) => console.log(`Selected Tab #${index + 1}.`)
           }
           id="tabsParent"
         >
@@ -367,27 +370,30 @@ class ModalInterface extends React.Component<MyProps, MyState> {
       javascript: "",
       selectedTab: "javascript",
       tabs: [{
-        label: "Default JS",
-        testId: "Default JSTab",
         content: null,
+        enabled: true,
         isJavascript: true,
-        enabled: true
+        label: "Default JS",
+        tabStyle: { color: "var(--dark-yellow)" },
+        testId: "Default JSTab",
       }, {
-        label: "Default CSS",
-        testId: "Default CSSTab",
         content: null,
+        enabled: true,
         isJavascript: false,
-        enabled: true
+        label: "Default CSS",
+        tabStyle: { color: "var(--dark-blue)" },
+        testId: "Default CSSTab",
       }, {
+        content: null,
         label: "⚙",
         testId: "⚙Tab",
-        content: null
       }, {
-        label: "JS2",
-        testId: "JS2Tab",
         content: null,
+        enabled: true,
         isJavascript: true,
-        enabled: true
+        label: "JS2",
+        tabStyle: { color: "var(--dark-yellow)" },
+        testId: "JS2Tab",
       }],
       text1: "",
       text2: ""
