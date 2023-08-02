@@ -110,6 +110,67 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     this.setState(loadedState);
   }
 
+
+  modifyTabsVarBasedOnUpsert(settings: {
+    enabled: boolean,
+    isJavascript: boolean,
+    previousTab: any,
+    tabName: string,
+    tabs: any
+  }) {
+    const tabToUpsert = {
+      "label": settings.tabName,
+      "testId": settings.tabName+"Tab",
+      "content": this.renderCont(settings.isJavascript),
+      "isJavascript": settings.isJavascript,
+      "enabled": settings.enabled,
+    };
+    let tabs = settings.tabs;
+    if(!settings.previousTab) {
+      console.log("Inserting tab", settings.tabName, "\n\n");
+      tabs.push(tabToUpsert);
+      let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
+      Array.from(domTabs).map(k=>
+        k.setAttribute(
+          "aria-setsize", 
+          (domTabs.length+1).toString()
+        )
+      );
+    } else {
+      console.log("Modifying tab", settings.tabName, "\n\n");
+      tabs = tabs.map(existingTab => {
+        if(existingTab.label === settings.tabName) {
+          return tabToUpsert;
+        } else {
+          return existingTab;
+        }
+      });
+    }
+    return tabs;
+  }
+
+  /**
+   *  const typeCode = isJavascript ? "JS" : "CSS";
+   *  const nodeToClone = document.querySelector(`[data-testid="Default ${typeCode}Tab"]`);
+   *  if(!nodeToClone) {
+   *    console.error("Node to clone was null");
+   *  }
+   *  workingTab = document.querySelector(`[data-testid="${tabName}Tab"]`);
+   *  //@ts-ignore
+   *  workingTab.setAttribute("aria-posinset", (domTabs.length+1).toString());
+   *  //@ts-ignore
+   *  workingTab.setAttribute("data-testid", tabName+"Tab");
+   *  //@ts-ignore
+   *  document.querySelector('[role="tablist"]').appendChild(workingTab);
+   * 
+   *  //@ts-ignore
+   *  workingTab.innerText = tabName;
+   * 
+   *  ToDo set <AuiTabs tabs[k]content: this.renderCont(true)
+   *  ToDo and save status correctly to API
+   *  ToDo TypeCode, Enabled and InnerContents behavior
+   *  ToDo textAreas are written in renderCont()
+   */
   upsertTab() {
     //@ts-ignore
     const tabName = document.getElementById("tabName").value;
@@ -157,58 +218,16 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       console.log("No changes on Global JS/CSS tab Upsert");
       return;
     }
-    const tabToUpsert = {
-      "label": tabName,
-      "testId": tabName+"Tab",
-      "content": this.renderCont(isJavascript),
-      "isJavascript": isJavascript,
-      "enabled": enabled,
-    };
-    if(!previousTab) {
-      console.log("Inserting tab", tabName, "\n\n");
-      tabs.push(tabToUpsert);
-      let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
-      Array.from(domTabs).map(k=>
-        k.setAttribute(
-          "aria-setsize", 
-          (domTabs.length+1).toString()
-        )
-      );
-      /*
-      const typeCode = isJavascript ? "JS" : "CSS";
-      const nodeToClone = document.querySelector(`[data-testid="Default ${typeCode}Tab"]`);
-      if(!nodeToClone) {
-        console.error("Node to clone was null");
-      }
-      //@ts-ignore
-      workingTab = nodeToClone.cloneNode(true);
-      workingTab = document.querySelector(`[data-testid="${tabName}Tab"]`);
-      //@ts-ignore
-      workingTab.setAttribute("aria-posinset", (domTabs.length+1).toString());
-      //@ts-ignore
-      workingTab.setAttribute("data-testid", tabName+"Tab");
-      //@ts-ignore
-      document.querySelector('[role="tablist"]').appendChild(workingTab);
-      ToDo set <AuiTabs tabs[k]content: this.renderCont(true)
-      ToDo and save status correctly to API
-      ToDo TypeCode, Enabled and InnerContents behavior
-      ToDo textAreas are written in renderCont()
-      */
-    } else {
-      console.log("Modifying tab", tabName, "\n\n");
-      tabs = tabs.map(existingTab => {
-        if(existingTab.label === tabName) {
-          return tabToUpsert;
-        } else {
-          return existingTab;
-        }
-      });
-    }
+    tabs = this.modifyTabsVarBasedOnUpsert({
+      enabled: enabled,
+      isJavascript: isJavascript,
+      previousTab: previousTab,
+      tabName: tabName,
+      tabs: tabs
+    })
     this.setState(
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
     );
-    ////@ts-ignore
-    //workingTab.innerText = tabName;
   }
 
   deleteTab() {
