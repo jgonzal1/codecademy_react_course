@@ -13,8 +13,8 @@ interface MyProps {
   javascript: string,
   selectedTab: string,
   tabs: any,
-  text1: string,
-  text2: string,
+  typeOfCode: string,
+  tabNameToManage: string,
 }
 interface MyState {
   css: string,
@@ -23,8 +23,8 @@ interface MyState {
   javascript: string,
   selectedTab: string,
   tabs: any,
-  text1: string,
-  text2: string,
+  typeOfCode: string,
+  tabNameToManage: string,
 };
 export const Panel = (
   {children, testId}: {children: ReactNode; testId?: string;}
@@ -49,8 +49,8 @@ class _ extends React.Component<MyProps, MyState> {
         tabStyle: {},
         testId: "-Tab"
       }],
-      text1: "",
-      text2: ""
+      typeOfCode: "",
+      tabNameToManage: ""
     }
   }
 
@@ -62,8 +62,8 @@ class _ extends React.Component<MyProps, MyState> {
       loaded: true,
       selectedTab: this.props.selectedTab,
       tabs: this.props.tabs,
-      text1: this.props.text1,
-      text2: this.props.text2
+      typeOfCode: this.props.typeOfCode,
+      tabNameToManage: this.props.tabNameToManage
     });
   }
 }
@@ -84,8 +84,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
         tabStyle: {},
         testId: "-Tab"
       }],
-      text1: "",
-      text2: ""
+      typeOfCode: "",
+      tabNameToManage: ""
     }
   }
 
@@ -97,8 +97,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       loaded: true,
       selectedTab: this.props.selectedTab,
       tabs: this.props.tabs,
-      text1: this.props.text1,
-      text2: this.props.text2
+      typeOfCode: this.props.typeOfCode,
+      tabNameToManage: this.props.tabNameToManage
     };
     this.props.tabs.map((tab,i) => {
       if(tab["isJavascript"] !== undefined) {
@@ -110,6 +110,20 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     this.setState(loadedState);
   }
 
+  onSettingsChange(e) {
+    this.setState(
+      //@ts-ignore-next-line
+      {[e.target.id]: e.target.value},
+      () => {
+        console.log("Managing enabeCrudButtons change")
+        if (this.state.typeOfCode && this.state.tabNameToManage) {
+          this.setState({ enableCrudButtons: true });
+        } else {
+          this.setState({ enableCrudButtons: false });
+        }
+      }
+    );
+  }
 
   modifyTabsVarBasedOnUpsert(settings: {
     enabled: boolean,
@@ -278,21 +292,32 @@ class AuiTabs extends React.Component<MyProps, MyState> {
         }}>
             <label htmlFor="typeCode" style={{textAlign: 'right', fontWeight: "bold"}}>Type of code:&nbsp;</label>
             <div>CSS <input
-              id="typeCode" type='range' min="0" max="1" defaultValue="0" style={{height: "0.6em", width: "2em"}}
-            /> JavaScript</div>
+              defaultValue="0"
+              id="typeCode"
+              min="0" max="1"
+              onChange={this.onSettingsChange.bind(this)}
+              style={{height: "0.6em", width: "2em"}}
+              type="range"
+              value={this.state.typeOfCode}
+            /> JavaScript</div>{/*onClick={(ev)=>ev.target.value==="1"?ev.target.value="0":ev.target.value="1"*/}
             <label htmlFor="tabName" style={{textAlign: 'right', fontWeight: "bold"}}>Tab name:&nbsp;</label>
-            <input id="tabName" type='text'></input>
+            <input
+              id="tabName"
+              onChange={this.onSettingsChange.bind(this)}
+              type="text"
+              value={this.state.tabNameToManage}
+            ></input>
             <label htmlFor="enabled" style={{textAlign: 'right', fontWeight: "bold"}}>Enabled:&nbsp;</label>
             <div> {/* Enables the checkbox to be aligned to the left*/}
                 <input id="enabled" type='checkbox' style={{marginLeft: 0}}></input>
             </div>
         </div>
-        <button style={{
+        <button disabled={!this.state.enableCrudButtons} style={{
             backgroundColor: "#6C66",
             border: "1px solid #666",
             borderRadius: "0.3em"
         }} onClick={()=>this.upsertTab()}>Upsert</button>&nbsp;
-        <button style={{
+        <button disabled={!this.state.enableCrudButtons} style={{
             backgroundColor: "#C666",
             border: "1px solid #666",
             borderRadius: "0.3em"
@@ -329,8 +354,9 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       <textarea
         style={{"width": "100%", "height": "320px"}}
         onChange={change.bind(this)}
-        value={isJavascript ? this.state.javascript : this.state.css}
-      ></textarea>
+        defaultValue={isJavascript ? this.state.javascript : this.state.css}
+      >{/**/}
+      </textarea>
 
       <p>
           Note: you need to reload the page to observe
@@ -351,8 +377,8 @@ class AuiTabs extends React.Component<MyProps, MyState> {
           ,"enableCrudButtons": this.state.enableCrudButtons
           ,"javascript":this.state.javascript
           ,"selectedTab":this.state.selectedTab
-          ,"text1":this.state.text1
-          ,"text2":this.state.text2
+          ,"typeOfCode":this.state.typeOfCode
+          ,"tabNameToManage":this.state.tabNameToManage
         },
         "  tabs.label\n",
         this.state.tabs.map(t=>t.label),
@@ -413,16 +439,9 @@ class ModalInterface extends React.Component<MyProps, MyState> {
         content: null,
         label: "⚙",
         testId: "⚙Tab",
-      }, {
-        content: null,
-        enabled: true,
-        isJavascript: true,
-        label: "JS2",
-        tabStyle: { color: "var(--dark-yellow)" },
-        testId: "JS2Tab",
       }],
-      text1: "",
-      text2: ""
+      typeOfCode: "",
+      tabNameToManage: ""
     };
   }
   /**
@@ -434,8 +453,8 @@ class ModalInterface extends React.Component<MyProps, MyState> {
    *   "javascript": "string",
    *   "selectedTab": "string",
    *   "tabs": "any",
-   *   "text1": "string",
-   *   "text2": "string",
+   *   "typeOfCode": "string",
+   *   "tabNameToManage": "string",
    * };
    * ```
    */
@@ -444,7 +463,8 @@ class ModalInterface extends React.Component<MyProps, MyState> {
       //@ts-ignore-next-line
       {[e.target.id]: e.target.value},
       () => {
-        if (this.state.text1 && this.state.text2) {
+        console.log("Managing enabeCrudButtons change")
+        if (this.state.typeOfCode && this.state.tabNameToManage) {
           this.setState({ enableCrudButtons: true });
         } else {
           this.setState({ enableCrudButtons: false });
@@ -459,22 +479,22 @@ class ModalInterface extends React.Component<MyProps, MyState> {
   render() {
     return (
       <React.Fragment>
-        <label htmlFor="text1">Text1</label>&nbsp;
+        <label htmlFor="typeOfCode">typeOfCode</label>&nbsp;
         <input
           type="text"
-          id="text1"
-          name="text1"
+          id="typeOfCode"
+          name="typeOfCode"
           onChange={this.onChange.bind(this)}
-          value={this.state.text1}
+          value={this.state.typeOfCode}
         />
         <br/>
-        <label htmlFor="text2">Text2</label>&nbsp;
+        <label htmlFor="tabNameToManage">tabNameToManage</label>&nbsp;
         <input
           type="text"
-          id="text2"
-          name="text2"
+          id="tabNameToManage"
+          name="tabNameToManage"
           onChange={this.onChange.bind(this)}
-          value={this.state.text2}
+          value={this.state.tabNameToManage}
         />
         <br/>
         <button disabled={!this.state.enableCrudButtons}
@@ -486,8 +506,8 @@ class ModalInterface extends React.Component<MyProps, MyState> {
           javascript={this.state.javascript}
           selectedTab={this.state.selectedTab}
           tabs={this.state.tabs}
-          text1={this.state.text1}
-          text2={this.state.text2}
+          typeOfCode={this.state.typeOfCode}
+          tabNameToManage={this.state.tabNameToManage}
         />
       </React.Fragment>
     );
@@ -497,5 +517,5 @@ class ModalInterface extends React.Component<MyProps, MyState> {
 root.render(<ModalInterface
   css={''} enableCrudButtons={false} javascript={''}
   selectedTab={''} tabs={undefined}
-  text1={''} text2={''}
+  typeOfCode={''} tabNameToManage={''}
 />);
