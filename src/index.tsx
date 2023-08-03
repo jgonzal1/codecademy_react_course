@@ -119,11 +119,14 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     tabs: any
   }) {
     const tabToUpsert = {
-      "label": settings.tabName,
-      "testId": settings.tabName+"Tab",
       "content": this.renderCont(settings.isJavascript),
-      "isJavascript": settings.isJavascript,
       "enabled": settings.enabled,
+      "isJavascript": settings.isJavascript,
+      "label": settings.tabName,
+      "tabStyle": { color: `var(--dark-${
+        settings.isJavascript?"yellow":"blue"
+      })` },
+      "testId": settings.tabName+"Tab",
     };
     let tabs = settings.tabs;
     if(!settings.previousTab) {
@@ -342,16 +345,20 @@ class AuiTabs extends React.Component<MyProps, MyState> {
   render() {
 
     if(this.state.loaded && this.state.tabs) {
-      console.log("AuiTabs.state on render\n", {
-        "css":this.state.css
-        ,"enableCrudButtons": this.state.enableCrudButtons
-        ,"javascript":this.state.javascript
-        ,"selectedTab":this.state.selectedTab
-        ,"text1":this.state.text1
-        ,"text2":this.state.text2
-      });
+      console.log(
+        "AuiTabs.state on render\n", {
+          "css":this.state.css
+          ,"enableCrudButtons": this.state.enableCrudButtons
+          ,"javascript":this.state.javascript
+          ,"selectedTab":this.state.selectedTab
+          ,"text1":this.state.text1
+          ,"text2":this.state.text2
+        },
+        "  tabs.label\n",
+        this.state.tabs.map(t=>t.label),
+        "\n\n"
+      );
       const tabs = this.state.tabs;
-      console.log("  tabs.label\n", this.state.tabs.map(t=>t.label), "\n\n");
       const tabHeaders = tabs.map((val) => (
         <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
           <span style={val.tabStyle}>{val.label}</span>
