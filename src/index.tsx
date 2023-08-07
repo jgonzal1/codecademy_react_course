@@ -189,7 +189,10 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     };
     let tabs = settings.tabs;
     if(!settings.previousTab) {
-      console.log("Inserting tab", settings.tabNameToManage, "\n\n");
+      console.log(
+        "ManageAdditionalTabs.modifyTabsVarBasedOnUpsert/InsertingTab\n",
+        settings.tabNameToManage, "\n\n"
+      );
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
       Array.from(domTabs).map(k=>
@@ -199,7 +202,10 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
         )
       );
     } else {
-      console.log("Modifying tab", settings.tabNameToManage, "\n\n");
+      console.log(
+        "ManageAdditionalTabs.modifyTabsVarBasedOnUpsert/ModifyingTab\n",
+        settings.tabNameToManage, "\n\n"
+      );
       tabs = tabs.map(existingTab => {
         if(existingTab.label === settings.tabNameToManage) {
           return tabToUpsert;
@@ -233,9 +239,13 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     if(this.state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
     const isJavascript = $("#typeCode")[0].checked;
     const enabled = $("#enabled")[0].checked;
-    console.log("IsJs", isJavascript, "Enabled", enabled);
     let tabs = this.state.tabs;
-    console.log(`Tabs on upsertTab: ${tabs.map(t=>t.label)}.`);
+    console.log(
+      `ManageAdditionalTabs.upsertTab: {
+      "isJavascript": ${isJavascript},
+      "enabled": ${enabled},
+      "tabs": "${tabs.map(t=>t.label)}"\n}`
+    );
     const previousTab = tabs.filter(
       tab => tab.label === this.state.tabNameToManage
     )[0];
@@ -257,9 +267,9 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
         "testId": this.state.tabNameToManage+"Tab",
     };
     console.log(
-      "tab", this.state.tabNameToManage,
-      "previousCustomTab", previousCustomTabCheckers,
-      "newCustomTab", newCustomTabCheckers
+      "ManageAdditionalTabs.upsertTab/\n  tab:", this.state.tabNameToManage,
+      "\n  previousCustomTab:", previousCustomTabCheckers,
+      "\n  newCustomTab:", newCustomTabCheckers
     );
     if(
       Object.keys(previousCustomTabCheckers).length &&
@@ -267,7 +277,8 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       previousCustomTabCheckers["isJavascript"] === newCustomTabCheckers["isJavascript"] &&
       previousCustomTabCheckers["enabled"] === newCustomTabCheckers["enabled"]
     ) {
-      console.log("No changes on Global JS/CSS tab Upsert");
+      console.log(`ManageAdditionalTabs.upsertTab/
+      No changes on Global JS/CSS tab Upsert`);
       return;
     }
     tabs = this.modifyTabsVarBasedOnUpsert({
@@ -281,8 +292,20 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       tabs: tabs,
       typeOfCode: this.state.typeOfCode
     })
+    console.log(
+      "ManageAdditionalTabs.upsertTab/\n  state.tabs before:",
+      this.state.tabs
+    );
+    console.log(
+      "ManageAdditionalTabs.upsertTab/\n  tabs to be changed:",
+      tabs
+    );
     this.setState(
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
+    );
+    console.log(
+      "ManageAdditionalTabs.upsertTab/\n  state.tabs after:",
+      this.state.tabs
     );
   }
 
@@ -297,7 +320,7 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     );
     
     if(!tabToDeleteAsChild.length) {
-      console.log("The provided tab", this.state.tabNameToManage, "does not exist");
+      console.log("ManageAdditionalTabs.deleteTab/\nThe provided tab", this.state.tabNameToManage, "does not exist");
       return;
     } 
     const tabsAfterDeletion = tabs.filter(tab => tab.label!==this.state.tabNameToManage);
@@ -305,7 +328,7 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     stateToModify.tabs = tabsAfterDeletion;
     //const tabInDom = document.querySelector(`[data-testid="${tabName}Tab"]`);
     //if(!tabInDom) {
-    //  console.log("The provided tab", tabName, "does not exist");
+    //  console.log("ManageAdditionalTabs.deleteTab/\nThe provided tab", tabName, "does not exist");
     //  return;
     //}
     this.setState( stateToModify );
@@ -317,7 +340,9 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       )
     );
     //tabInDom.remove();
-    console.log(`Deleted tab ${this.state.tabNameToManage}.\n`);
+    console.log(`ManageAdditionalTabs.deleteTab/\nDeleted tab ${
+      this.state.tabNameToManage
+    }.\n`);
   }
 
   render() {
@@ -473,7 +498,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
   render() {
 
     if(this.state.loaded) {
-      console.log(`AuiTabs.state on render: {
+      console.log(`AuiTabs.render/state: {
         "css": "${this.state.css}"
         ,"enableCrudButtons": ${this.state.enableCrudButtons}
         ,"javascript": "${this.state.javascript}"
@@ -498,7 +523,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       ));
       return (<React.Fragment>
         <Tabs id="tabsParent" onChange = {
-          (index, _) => console.log(`Selected Tab #${index + 1}.`)
+          (index, _) => console.log(`AuiTabs.render/Selected Tab #${index + 1}.`)
         }>
           <TabList>{tabHeaders}</TabList>
           {tabPanels}
