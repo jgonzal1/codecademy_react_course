@@ -1,15 +1,18 @@
 :root {
-  --gray:         #707880;
+  --white:        #FFFFFF;
   --light-gray:   #C5C8C6;
-  --red:          #A54242;
+  --dark-gray:    #707880;
+  --darker-gray:  #282A2E;
   --light-red:    #CC6666;
-  --orange:       #DE935F;
-  --yellow:       #F0C674;
+  --dark-red:     #A54242;
+  --light-orange: #DE935F;
+  --dark-orange:  #9C5A29;
+  --light-yellow: #F0C674;
   --dark-yellow:  #A17E2F;
   --light-green:  #B5BD68;
   --dark-green:   #8C9440;
   --light-patina: #8ABEB7;
-  --patina:       #5E8D87;
+  --dark-patina:  #5E8D87;
   --light-blue:   #81A2BE;
   --dark-blue:    #5F819D;
   --light-purple: #B294BB;
@@ -52,6 +55,29 @@ ul {
   pointer-events: none; /* No cursor */
   background-color: var(--light-gray); /* Gray background */
 }
+.h320 {
+  height: 320px;
+}
+.w100p {
+  width: 100%
+}
+.label-for-input {
+  text-align: right;
+  font-weight: bold;
+}
+.custom-css-js-button {
+  border: 1px solid var(--darker-gray);
+  border-radius: 0.3em;
+  font-size: 1em;
+  padding: 0.2em 0.3em;
+}
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+.grid-2-cols > * {
+  padding: 0.2em 0em; /* top&bot left&right */
+}
 
 /* Divide all by 30 */
 .switch {
@@ -83,7 +109,7 @@ ul {
   width: 0.9em;
   left: 0.1em;
   bottom: 0.1em;
-  background-color: white;
+  background-color: var(--white);
   -webkit-transition: .4s;
   transition: .4s;
 }

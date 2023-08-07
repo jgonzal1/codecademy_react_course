@@ -1,3 +1,4 @@
+//#region Dependencies
 import './index.css';
 import React, { ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -32,6 +33,7 @@ interface CssJsTabsState {
 
 interface CodeBodyProps {
   css: string,
+  enableCrudButtons: boolean,
   isJavascript: boolean,
   javascript: string,
   selectedTab: string,
@@ -40,18 +42,14 @@ interface CodeBodyProps {
 }
 interface CodeBodyState {
   css: string,
+  enableCrudButtons: boolean,
   isJavascript: boolean,
   javascript: string,
   selectedTab: string,
   typeOfCode: string,
   tabName: string
 };
-
-export const Panel = (
-  {children, testId}: {children: ReactNode; testId?: string;}
-) => (
-  <div data-testid={testId}>{children}</div>
-);
+//#endregion
 
 class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
 
@@ -59,6 +57,7 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
     super(props)
     this.state = {
       css: "",
+      enableCrudButtons: false,
       isJavascript: false,
       javascript: "",
       selectedTab: "javascript",
@@ -67,15 +66,20 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
     }
   }
 
-  change(ev) {
-    const s = {...this.state};
-    if (this.state.isJavascript) {
-        s.javascript = ev.target.value;
-    } else {
-        s.css = ev.target.value;
-    }
-    this.setState(s);
-  };
+  onTextSettingsChange(e) {
+    console.log("CodeBody.onTextSettingsChange")
+    this.setState(
+      //@ts-ignore-next-line
+      {[e.target.id]: e.target.value},
+      () => {
+        if (this.state.tabName) {
+          this.setState({ enableCrudButtons: true });
+        } else {
+          this.setState({ enableCrudButtons: false });
+        }
+      }
+    );
+  }
 
   // OK : console.log(this.state);
 
@@ -93,8 +97,8 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
     </p>
 
     <textarea
-      style={{"width": "100%", "height": "320px"}}
-      onChange={(ev)=>this.change(ev)}
+      className="h320 w100p"
+      onChange={this.onTextSettingsChange.bind(this)}
       defaultValue={ this.state.isJavascript ? this.state.javascript : this.state.css }
     >{/**/}
     </textarea>
@@ -108,25 +112,53 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
 }
 
 class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
-  constructor(props) {
-    super(props)
-    this.state = {
-      css: "",
-      enableCrudButtons: false,
-      javascript: "",
-      selectedTab: "javascript",
-      tabs: [{
-        content: <></>,
-        enabled: true,
-        label: "-",
-        tabStyle: {},
-        testId: "-Tab"
-      }],
-      typeOfCode: "",
-      tabNameToManage: ""
-    }
+
+  /**
+   * ```json
+   * "state": {
+   *   "css": "string",         "enableCrudButtons": "boolean", "loaded": "boolean|undefined",
+   *   "javascript": "string",  "selectedTab": "string",        "tabs": "any",
+   *   "typeOfCode": "string",  "tabNameToManage": "string"
+   * };
+   * ```
+   */
+ constructor(props) {
+   super(props)
+   this.state = {
+    css: "",
+    enableCrudButtons: false,
+    javascript: "",
+    selectedTab: "javascript",
+    tabs: [{
+      content: <></>,
+      enabled: true,
+      label: "-",
+      tabStyle: {},
+      testId: "-Tab"
+    }],
+    typeOfCode: "",
+    tabNameToManage: ""
   }
 
+ }
+
+  onTextSettingsChange(e) {
+    console.log(
+      "ManageAdditionalTabs.onTextSettingsChange",
+      e.target.id, e.target.value
+    );
+    this.setState(
+      //@ts-ignore-next-line
+      {[e.target.id]: e.target.value},
+      () => {
+        if (this.state.tabNameToManage) {
+          this.setState({ enableCrudButtons: true });
+        } else {
+          this.setState({ enableCrudButtons: false });
+        }
+      }
+    );
+  }
   
   modifyTabsVarBasedOnUpsert(settings: {
     css: string,
@@ -135,30 +167,31 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     javascript: string,
     previousTab: any,
     selectedTab: string,
-    tabName: string,
+    tabNameToManage: string,
     tabs: any,
     typeOfCode: string,
   }) {
     const tabToUpsert = {
       "content": <CodeBody
         css=''
+        enableCrudButtons={false}
         isJavascript={settings.isJavascript}
         javascript=''
         selectedTab=''
-        tabName=''
+        tabName={settings.tabNameToManage}
         typeOfCode=''
       />,
       "enabled": settings.enabled,
       "isJavascript": settings.isJavascript,
-      "label": settings.tabName,
+      "label": settings.tabNameToManage,
       "tabStyle": { color: `var(--dark-${
         settings.isJavascript?"yellow":"blue"
       })` },
-      "testId": settings.tabName+"Tab",
+      "testId": settings.tabNameToManage+"Tab",
     };
     let tabs = settings.tabs;
     if(!settings.previousTab) {
-      console.log("Inserting tab", settings.tabName, "\n\n");
+      console.log("Inserting tab", settings.tabNameToManage, "\n\n");
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
       Array.from(domTabs).map(k=>
@@ -168,9 +201,9 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
         )
       );
     } else {
-      console.log("Modifying tab", settings.tabName, "\n\n");
+      console.log("Modifying tab", settings.tabNameToManage, "\n\n");
       tabs = tabs.map(existingTab => {
-        if(existingTab.label === settings.tabName) {
+        if(existingTab.label === settings.tabNameToManage) {
           return tabToUpsert;
         } else {
           return existingTab;
@@ -199,15 +232,13 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
  *  ToDo textAreas are written in renderCont()
  */
   upsertTab() {
-    const tabName = $("#tabNameToManage").value;
-    console.log("tabName on upsert", tabName);
-    if(tabName.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
+    if(this.state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
     const isJavascript = $("#typeCode").checked;
     const enabled = $("#enabled").checked;
     let tabs = this.state.tabs;
     console.log(`Tabs on upsertTab: ${tabs.map(t=>t.label)}.`);
     const previousTab = tabs.filter(
-      tab => tab.label === tabName
+      tab => tab.label === this.state.tabNameToManage
     )[0];
     let previousCustomTabCheckers = {};
     if(!!previousTab && previousTab.length) {
@@ -216,7 +247,7 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
           return {
             "enabled": t.enabled,
             "isJavascript": t.isJavascript,
-            "testId": t.tabName+"Tab",
+            "testId": t.tabNameToManage+"Tab",
           }
         }
       );
@@ -224,10 +255,10 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     const newCustomTabCheckers = {
         "enabled": enabled,
         "isJavascript": isJavascript,
-        "testId": tabName+"Tab",
+        "testId": this.state.tabNameToManage+"Tab",
     };
     console.log(
-      "tab", tabName,
+      "tab", this.state.tabNameToManage,
       "previousCustomTab", previousCustomTabCheckers,
       "newCustomTab", newCustomTabCheckers
     );
@@ -247,7 +278,7 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       javascript: this.state.javascript,
       previousTab: previousTab,
       selectedTab: this.state.selectedTab,
-      tabName: tabName,
+      tabNameToManage: this.state.tabNameToManage,
       tabs: tabs,
       typeOfCode: this.state.typeOfCode
     })
@@ -257,22 +288,20 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
   }
 
   deleteTab() {
-    //@ts-ignore
-    const tabName = document.getElementById("tabName").value;
-    if(tabName.search("\"")!==-1) {
+    if(this.state.tabNameToManage.search("\"")!==-1) {
       alert("Please select a tab name without quotes");
       return;
     }
     const tabs = this.state.tabs;
     const tabToDeleteAsChild = tabs.filter(
-      tab => tab.label === tabName
+      tab => tab.label === this.state.tabNameToManage
     );
     
     if(!tabToDeleteAsChild.length) {
-      console.log("The provided tab", tabName, "does not exist");
+      console.log("The provided tab", this.state.tabNameToManage, "does not exist");
       return;
     } 
-    const tabsAfterDeletion = tabs.filter(tab => tab.label!==tabName);
+    const tabsAfterDeletion = tabs.filter(tab => tab.label!==this.state.tabNameToManage);
     let stateToModify = {...this.state};
     stateToModify.tabs = tabsAfterDeletion;
     //const tabInDom = document.querySelector(`[data-testid="${tabName}Tab"]`);
@@ -289,69 +318,58 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       )
     );
     //tabInDom.remove();
-    console.log(`Deleted tab ${tabName}.\n`);
+    console.log(`Deleted tab ${this.state.tabNameToManage}.\n`);
   }
 
   render() {
     return (<div>
-      <div style={{
-          display: "grid",
-          gridTemplateColumns: "auto auto",
-          margin: "0.6em 0" // top&bot left&right
-      }}>
-          <label htmlFor="typeCode" style={{textAlign: 'right', fontWeight: "bold"}}>Type of code:&nbsp;</label>
+      <div className="grid-2-cols">
+          <label htmlFor="typeCode" className="label-for-input">Type of code:&nbsp;</label>
           <div>CSS <label className="switch">
             <input id="typeCode" type="checkbox"/>
             <span className="slider round"></span>
           </label> JavaScript</div>
-          <label htmlFor="tabName" style={{textAlign: 'right', fontWeight: "bold"}}>Tab name:&nbsp;</label>
+          <label htmlFor="tabNameToManage" className="label-for-input">Tab name:&nbsp;</label>
           <input
             id="tabNameToManage"
-            onChange={AuiTabs.onTextSettingsChange}
+            onChange={this.onTextSettingsChange.bind(this)}
             type="text"
             defaultValue={this.state.tabNameToManage}
-          ></input>
-          <label htmlFor="enabled" style={{textAlign: 'right', fontWeight: "bold"}}>Enabled:&nbsp;</label>
+          />
+          <label htmlFor="enabled" className="label-for-input">Enabled:&nbsp;</label>
           <div> {/* Enables the checkbox to be aligned to the left*/}
-            <input id="enabled" type='checkbox' style={{marginLeft: 0}}></input>
+            <input id="enabled" type='checkbox' style={{marginLeft: 0}}/>
           </div>
       </div>
-      <button className={this.state.enableCrudButtons?"":"disabled"} style={{
-          backgroundColor: "var(--light-patina)",
-          border: "1px solid var(--gray)",
-          borderRadius: "0.3em",
-          opacity: "0.8"
-      }} onClick={()=>this.upsertTab()}>Upsert</button>&nbsp;
-      <button className={this.state.enableCrudButtons?"":"disabled"} style={{
-          backgroundColor: "var(--orange)",
-          border: "1px solid var(--gray)",
-          borderRadius: "0.3em",
-          opacity: "0.8"
-      }} onClick={()=>this.deleteTab()}>Delete</button>
+      <button className="custom-css-js-button"
+        style={{backgroundColor: "var(--light-patina)"}}
+        disabled={!this.state.enableCrudButtons}
+        onClick={()=>this.upsertTab()}
+      >Upsert</button>&nbsp;
+      <button className="custom-css-js-button"
+        style={{backgroundColor: "var(--light-orange)"}}
+        disabled={!this.state.enableCrudButtons}
+        onClick={()=>this.deleteTab()}
+      >Delete</button>
   </div>)
   }
 }
 
 class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
-  static onTextSettingsChange: any;
-
+  /**
+   * ```json
+   * "state": {
+   *   "css": "string",         "enableCrudButtons": "boolean", "loaded": "boolean|undefined",
+   *   "javascript": "string",  "selectedTab": "string",        "tabs": "any",
+   *   "typeOfCode": "string",  "tabNameToManage": "string"
+   * };
+   * ```
+   */
   constructor(props) {
     super(props)
-    this.state = {
-      css: "",
-      enableCrudButtons: false,
-      javascript: "",
-      selectedTab: "javascript",
-      tabs: [{
-        content: <></>,
-        enabled: true,
-        label: "-",
-        tabStyle: {},
-        testId: "-Tab"
-      }],
-      typeOfCode: "",
-      tabNameToManage: ""
-    }
+    this.state = structuredClone(this.props) ?? JSON.parse(
+      JSON.stringify(this.props)
+    ); // when node < 17
   }
 
   componentDidMount() {
@@ -379,7 +397,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
           typeOfCode={this.props.typeOfCode}
           tabNameToManage={this.props.tabNameToManage}
         />;
-        return "SettingsTab";
+        return "settingsTab";
       }
       return "unknownTab";
     });
@@ -387,6 +405,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
   }
 
   onTextSettingsChange(e) {
+    console.log("AuiTabs.onTextSettingsChange", e.target);
     this.setState(
       //@ts-ignore-next-line
       {[e.target.id]: e.target.value},
@@ -401,17 +420,6 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
   }
 
   renderCont(isJavascript) {
-
-    const change = ((ev) => {
-        const s = {...this.state};
-        if (isJavascript) {
-            s.javascript = ev.target.value;
-        } else {
-            s.css = ev.target.value;
-        }
-        this.setState(s);
-    });
-
     // OK : console.log(this.state);
 
     return (<div>
@@ -427,10 +435,10 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       </p>
 
       <textarea
-        style={{"width": "100%", "height": "320px"}}
-        onChange={change.bind(this)}
-        defaultValue={isJavascript ? this.state.javascript : this.state.css}
-      >{/**/}
+        className="h320 w100p"
+        onChange={this.onTextSettingsChange.bind(this)}
+        value={isJavascript ? this.state.javascript : this.state.css}
+      >{/*defaultValue allows writing, but value does not*/}
       </textarea>
 
       <p>
@@ -440,9 +448,16 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
     </div>)
   }
 
+  Panel = (
+    {children, testId}: {children: ReactNode; testId?: string;}
+  ) => (
+    <div data-testid={testId}>{children}</div>
+  );
+  
+
   render() {
 
-    if(this.state.loaded && this.state.tabs) {
+    if(this.state.loaded) {
       console.log(
         "AuiTabs.state on render\n", {
           "css":this.state.css
@@ -464,17 +479,15 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       ));
       const tabPanels = tabs.map((val) => (
         <TabPanel testId={val.testId+"TabPanel"} key={val.testId+"TabPanel"}>
-          <Panel testId={val.testId+"TPanel"} key={val.testId+"TPanel"}>
+          <this.Panel testId={val.testId+"TPanel"} key={val.testId+"TPanel"}>
             {val.content}
-          </Panel>
+          </this.Panel>
         </TabPanel>
       ));
       return (<React.Fragment>
-        <Tabs onChange = {
-            (index) => console.log(`Selected Tab #${index + 1}.`)
-          }
-          id="tabsParent"
-        >
+        <Tabs id="tabsParent" onChange = {
+          (index) => console.log(`Selected Tab #${index + 1}.`)
+        }>
           <TabList>{tabHeaders}</TabList>
           {tabPanels}
         </Tabs>
@@ -487,97 +500,47 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
 
 class ModalInterface extends React.Component<CssJsTabsProps, CssJsTabsState> {
   constructor(props) {
-    super(props);
-    this.state = {
-      css: "",         enableCrudButtons: false,
-      javascript: "",  selectedTab: "javascript",
-      tabs: [{
-        content: null, enabled: true,
-        isJavascript: true,
-        label: "Default JS",
-        tabStyle: { fontSize: "1.2em", color: "var(--dark-yellow)" },
-        testId: "Default JSTab",
-      }, {
-        content: null, enabled: true,
-        isJavascript: false,
-        label: "Default CSS",
-        tabStyle: { fontSize: "1.2em", color: "var(--dark-blue)" },
-        testId: "Default CSSTab",
-      }, {
-        content: null, label: "⚙",
-        tabStyle: { fontSize: "1.2em", fontWeight: "bolder", color: "var(--gray)" },
-        testId: "⚙Tab",
-      }],
-      typeOfCode: "",  tabNameToManage: ""
-    };
-  }
-  /**
-   * ```json
-   * "state": {
-   *   "css": "string",         "enableCrudButtons": "boolean", "loaded": "boolean|undefined",
-   *   "javascript": "string",  "selectedTab": "string",        "tabs": "any",
-   *   "typeOfCode": "string",  "tabNameToManage": "string"
-   * };
-   * ```
-   */
-  onChange(e) {
-    this.setState(
-      //@ts-ignore-next-line
-      {[e.target.id]: e.target.value},
-      () => {
-        console.log("Managing enabeCrudButtons change")
-        if (this.state.typeOfCode && this.state.tabNameToManage) {
-          this.setState({ enableCrudButtons: true });
-        } else {
-          this.setState({ enableCrudButtons: false });
-        }
-      }
-    );
+    super(props)
+    this.state = structuredClone(this.props) ?? JSON.parse(
+      JSON.stringify(this.props)
+    ); // when node < 17
   }
 
-  updateUi() {
-    console.log("updatedUi", this.state);
-  }
   render() {
-    return (
-      <React.Fragment>
-        <label htmlFor="typeOfCode">typeOfCode</label>&nbsp;
-        <input
-          type="text"
-          id="typeOfCode"
-          name="typeOfCode"
-          onChange={this.onChange.bind(this)}
-          value={this.state.typeOfCode}
-        />
-        <br/>
-        <label htmlFor="tabNameToManage">tabNameToManage</label>&nbsp;
-        <input
-          type="text"
-          id="tabNameToManage"
-          name="tabNameToManage"
-          onChange={this.onChange.bind(this)}
-          value={this.state.tabNameToManage}
-        />
-        <br/>
-        <button disabled={!this.state.enableCrudButtons}
-          onClick={()=>this.updateUi()}
-        >Set States</button>
-        <AuiTabs
-          css={this.state.css}
-          enableCrudButtons={this.state.enableCrudButtons}
-          javascript={this.state.javascript}
-          selectedTab={this.state.selectedTab}
-          tabs={this.state.tabs}
-          typeOfCode={this.state.typeOfCode}
-          tabNameToManage={this.state.tabNameToManage}
-        />
-      </React.Fragment>
-    );
+    return (<AuiTabs
+      css={this.state.css}
+      enableCrudButtons={this.state.enableCrudButtons}
+      javascript={this.state.javascript}
+      selectedTab={this.state.selectedTab}
+      tabs={this.state.tabs}
+      typeOfCode={this.state.typeOfCode}
+      tabNameToManage={this.state.tabNameToManage}
+    />);
   }
 }
 
 root.render(<ModalInterface
-  css={''} enableCrudButtons={false} javascript={''}
-  selectedTab={''} tabs={undefined}
-  typeOfCode={''} tabNameToManage={''}
+  css=""
+  enableCrudButtons={false}
+  javascript=""
+  selectedTab="javascript"
+  tabs={[{
+    content: null, enabled: true,
+    isJavascript: true,
+    label: "Default JS",
+    tabStyle: { color: "var(--dark-yellow)" },
+    testId: "Default JSTab",
+  }, {
+    content: null, enabled: true,
+    isJavascript: false,
+    label: "Default CSS",
+    tabStyle: { color: "var(--dark-blue)" },
+    testId: "Default CSSTab",
+  }, {
+    content: null, label: "⚙",
+    tabStyle: { fontWeight: "bolder", color: "var(--dark-gray)" },
+    testId: "⚙Tab",
+  }]}
+  typeOfCode=""
+  tabNameToManage=""
 />);
