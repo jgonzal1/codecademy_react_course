@@ -46,47 +46,12 @@ interface CodeBodyState {
   typeOfCode: string,
   tabName: string
 };
+
 export const Panel = (
   {children, testId}: {children: ReactNode; testId?: string;}
 ) => (
   <div data-testid={testId}>{children}</div>
 );
-
-class _ extends React.Component<CssJsTabsProps, CssJsTabsState> {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      css: "",
-      enableCrudButtons: false,
-      javascript: "",
-      loaded: false,
-      selectedTab: "javascript",
-      tabs: [{
-        content: <></>,
-        enabled: true,
-        label: "-",
-        tabStyle: {},
-        testId: "-Tab"
-      }],
-      typeOfCode: "",
-      tabNameToManage: ""
-    }
-  }
-
-  componentDidMount() {
-    this.setState({
-      css: this.props.css,
-      enableCrudButtons: this.props.enableCrudButtons,
-      javascript: this.props.javascript,
-      loaded: true,
-      selectedTab: this.props.selectedTab,
-      tabs: this.props.tabs,
-      typeOfCode: this.props.typeOfCode,
-      tabNameToManage: this.props.tabNameToManage
-    });
-  }
-}
 
 class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
 
@@ -403,17 +368,20 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
     this.props.tabs.map((tab,i) => {
       if(tab["isJavascript"] !== undefined) {
         loadedState.tabs[i].content = this.renderCont(tab.isJavascript);
+        return "codeTab";
       } else if (tab["label"] === "⚙") {
         loadedState.tabs[i].content = <ManageAdditionalTabs
-         css={this.props.css}
-         enableCrudButtons={this.props.enableCrudButtons}
-         javascript={this.props.javascript}
-         selectedTab={this.props.selectedTab}
-         tabs={this.props.tabs}
-         typeOfCode={this.props.typeOfCode}
-         tabNameToManage={this.props.tabNameToManage}
+          css={this.props.css}
+          enableCrudButtons={this.props.enableCrudButtons}
+          javascript={this.props.javascript}
+          selectedTab={this.props.selectedTab}
+          tabs={this.props.tabs}
+          typeOfCode={this.props.typeOfCode}
+          tabNameToManage={this.props.tabNameToManage}
         />;
+        return "SettingsTab";
       }
+      return "unknownTab";
     });
     this.setState(loadedState);
   }
@@ -442,7 +410,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
             s.css = ev.target.value;
         }
         this.setState(s);
-    }).bind(this);
+    });
 
     // OK : console.log(this.state);
 
