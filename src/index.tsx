@@ -2,29 +2,49 @@ import './index.css';
 import React, { ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
+import $ from 'jquery';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root')??document.createElement('div')
 );
 
-interface MyProps {
+interface CssJsTabsProps {
   css: string,
   enableCrudButtons: boolean,
+  isJavascript?: boolean,
   javascript: string,
   selectedTab: string,
   tabs: any,
   typeOfCode: string,
-  tabNameToManage: string,
+  tabNameToManage: string
 }
-interface MyState {
+interface CssJsTabsState {
   css: string,
   enableCrudButtons: boolean,
+  isJavascript?: boolean,
   loaded?: boolean,
   javascript: string,
   selectedTab: string,
   tabs: any,
   typeOfCode: string,
-  tabNameToManage: string,
+  tabNameToManage: string
+};
+
+interface CodeBodyProps {
+  css: string,
+  isJavascript: boolean,
+  javascript: string,
+  selectedTab: string,
+  typeOfCode: string,
+  tabName: string
+}
+interface CodeBodyState {
+  css: string,
+  isJavascript: boolean,
+  javascript: string,
+  selectedTab: string,
+  typeOfCode: string,
+  tabName: string
 };
 export const Panel = (
   {children, testId}: {children: ReactNode; testId?: string;}
@@ -32,7 +52,7 @@ export const Panel = (
   <div data-testid={testId}>{children}</div>
 );
 
-class _ extends React.Component<MyProps, MyState> {
+class _ extends React.Component<CssJsTabsProps, CssJsTabsState> {
 
   constructor(props) {
     super(props)
@@ -68,8 +88,61 @@ class _ extends React.Component<MyProps, MyState> {
   }
 }
 
-class AuiTabs extends React.Component<MyProps, MyState> {
+class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      css: "",
+      isJavascript: false,
+      javascript: "",
+      selectedTab: "javascript",
+      typeOfCode: "",
+      tabName: ""
+    }
+  }
+
+  change(ev) {
+    const s = {...this.state};
+    if (this.state.isJavascript) {
+        s.javascript = ev.target.value;
+    } else {
+        s.css = ev.target.value;
+    }
+    this.setState(s);
+  };
+
+  // OK : console.log(this.state);
+
+  render() {
+    return (<div>
+    <p>{this.state.isJavascript ?
+      <span>
+        Remember to add clear javascript, and do not use&nbsp;
+        <code>{"<"}script{">"}</code> or other HTML tags.<br/>
+        As a good practice, run the js trough a validator
+        such as <a href="https://codebeautify.org/jsvalidate"
+        >code beautify</a> before saving.
+      </span>:
+      null}
+    </p>
+
+    <textarea
+      style={{"width": "100%", "height": "320px"}}
+      onChange={(ev)=>this.change(ev)}
+      defaultValue={ this.state.isJavascript ? this.state.javascript : this.state.css }
+    >{/**/}
+    </textarea>
+
+    <p>
+      Note: you need to reload the page to observe
+      your newly saved { this.state.isJavascript ? "javascript" : "css" }.
+    </p>
+  </div>)
+  }
+}
+
+class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
   constructor(props) {
     super(props)
     this.state = {
@@ -89,51 +162,27 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     }
   }
 
-  componentDidMount() {
-    let loadedState = {
-      css: this.props.css,
-      enableCrudButtons: this.props.enableCrudButtons,
-      javascript: this.props.javascript,
-      loaded: true,
-      selectedTab: this.props.selectedTab,
-      tabs: this.props.tabs,
-      typeOfCode: this.props.typeOfCode,
-      tabNameToManage: this.props.tabNameToManage
-    };
-    this.props.tabs.map((tab,i) => {
-      if(tab["isJavascript"] !== undefined) {
-        loadedState.tabs[i].content = this.renderCont(tab.isJavascript);
-      } else if (tab["label"] === "⚙") {
-        loadedState.tabs[i].content = this.manageAdditionalTabs();
-      }
-    });
-    this.setState(loadedState);
-  }
-
-  onSettingsChange(e) {
-    this.setState(
-      //@ts-ignore-next-line
-      {[e.target.id]: e.target.value},
-      () => {
-        console.log("Managing enabeCrudButtons change")
-        if (this.state.typeOfCode && this.state.tabNameToManage) {
-          this.setState({ enableCrudButtons: true });
-        } else {
-          this.setState({ enableCrudButtons: false });
-        }
-      }
-    );
-  }
-
+  
   modifyTabsVarBasedOnUpsert(settings: {
+    css: string,
     enabled: boolean,
     isJavascript: boolean,
+    javascript: string,
     previousTab: any,
+    selectedTab: string,
     tabName: string,
-    tabs: any
+    tabs: any,
+    typeOfCode: string,
   }) {
     const tabToUpsert = {
-      "content": this.renderCont(settings.isJavascript),
+      "content": <CodeBody
+        css=''
+        isJavascript={settings.isJavascript}
+        javascript=''
+        selectedTab=''
+        tabName=''
+        typeOfCode=''
+      />,
       "enabled": settings.enabled,
       "isJavascript": settings.isJavascript,
       "label": settings.tabName,
@@ -167,38 +216,29 @@ class AuiTabs extends React.Component<MyProps, MyState> {
   }
 
   /**
-   *  const typeCode = isJavascript ? "JS" : "CSS";
-   *  const nodeToClone = document.querySelector(`[data-testid="Default ${typeCode}Tab"]`);
-   *  if(!nodeToClone) {
-   *    console.error("Node to clone was null");
-   *  }
-   *  workingTab = document.querySelector(`[data-testid="${tabName}Tab"]`);
-   *  //@ts-ignore
-   *  workingTab.setAttribute("aria-posinset", (domTabs.length+1).toString());
-   *  //@ts-ignore
-   *  workingTab.setAttribute("data-testid", tabName+"Tab");
-   *  //@ts-ignore
-   *  document.querySelector('[role="tablist"]').appendChild(workingTab);
-   * 
-   *  //@ts-ignore
-   *  workingTab.innerText = tabName;
-   * 
-   *  ToDo set <AuiTabs tabs[k]content: this.renderCont(true)
-   *  ToDo and save status correctly to API
-   *  ToDo TypeCode, Enabled and InnerContents behavior
-   *  ToDo textAreas are written in renderCont()
-   */
+ *  const typeCode = isJavascript ? "JS" : "CSS";
+ *  const nodeToClone = document.querySelector(`[data-testid="Default ${typeCode}Tab"]`);
+ *  if(!nodeToClone) {
+ *    console.error("Node to clone was null");
+ *  }
+ *  workingTab = document.querySelector(`[data-testid="${tabName}Tab"]`);
+ *  workingTab.setAttribute("aria-posinset", (domTabs.length+1).toString());
+ *  workingTab.setAttribute("data-testid", tabName+"Tab");
+ *  document.querySelector('[role="tablist"]').appendChild(workingTab);
+ * 
+ *  workingTab.innerText = tabName;
+ * 
+ *  ToDo set <AuiTabs tabs[k]content: this.renderCont(true)
+ *  ToDo and save status correctly to API
+ *  ToDo TypeCode, Enabled and InnerContents behavior
+ *  ToDo textAreas are written in renderCont()
+ */
   upsertTab() {
-    //@ts-ignore
-    const tabName = document.getElementById("tabName").value;
-    if(tabName.search("\"")!==-1) {
-      alert("Please select a tab name without quotes");
-      return;
-    }
-    //@ts-ignore
-    const isJavascript = document.getElementById("typeCode").value === "1";
-    //@ts-ignore
-    const enabled = document.getElementById("enabled").checked;
+    const tabName = $("#tabNameToManage").value;
+    console.log("tabName on upsert", tabName);
+    if(tabName.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
+    const isJavascript = $("#typeCode").checked;
+    const enabled = $("#enabled").checked;
     let tabs = this.state.tabs;
     console.log(`Tabs on upsertTab: ${tabs.map(t=>t.label)}.`);
     const previousTab = tabs.filter(
@@ -236,11 +276,15 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       return;
     }
     tabs = this.modifyTabsVarBasedOnUpsert({
+      css: this.state.css,
       enabled: enabled,
       isJavascript: isJavascript,
+      javascript: this.state.javascript,
       previousTab: previousTab,
+      selectedTab: this.state.selectedTab,
       tabName: tabName,
-      tabs: tabs
+      tabs: tabs,
+      typeOfCode: this.state.typeOfCode
     })
     this.setState(
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
@@ -283,46 +327,109 @@ class AuiTabs extends React.Component<MyProps, MyState> {
     console.log(`Deleted tab ${tabName}.\n`);
   }
 
-  manageAdditionalTabs() {
+  render() {
     return (<div>
-        <div style={{
-            display: "grid",
-            gridTemplateColumns: "auto auto",
-            margin: "0.6em 0" // top&bot left&right
-        }}>
-            <label htmlFor="typeCode" style={{textAlign: 'right', fontWeight: "bold"}}>Type of code:&nbsp;</label>
-            <div>CSS <input
-              defaultValue="0"
-              id="typeCode"
-              min="0" max="1"
-              onChange={this.onSettingsChange.bind(this)}
-              style={{height: "0.6em", width: "2em"}}
-              type="range"
-              value={this.state.typeOfCode}
-            /> JavaScript</div>{/*onClick={(ev)=>ev.target.value==="1"?ev.target.value="0":ev.target.value="1"*/}
-            <label htmlFor="tabName" style={{textAlign: 'right', fontWeight: "bold"}}>Tab name:&nbsp;</label>
-            <input
-              id="tabName"
-              onChange={this.onSettingsChange.bind(this)}
-              type="text"
-              value={this.state.tabNameToManage}
-            ></input>
-            <label htmlFor="enabled" style={{textAlign: 'right', fontWeight: "bold"}}>Enabled:&nbsp;</label>
-            <div> {/* Enables the checkbox to be aligned to the left*/}
-                <input id="enabled" type='checkbox' style={{marginLeft: 0}}></input>
-            </div>
-        </div>
-        <button disabled={!this.state.enableCrudButtons} style={{
-            backgroundColor: "#6C66",
-            border: "1px solid #666",
-            borderRadius: "0.3em"
-        }} onClick={()=>this.upsertTab()}>Upsert</button>&nbsp;
-        <button disabled={!this.state.enableCrudButtons} style={{
-            backgroundColor: "#C666",
-            border: "1px solid #666",
-            borderRadius: "0.3em"
-        }} onClick={()=>this.deleteTab()}>Delete</button>
-    </div>)
+      <div style={{
+          display: "grid",
+          gridTemplateColumns: "auto auto",
+          margin: "0.6em 0" // top&bot left&right
+      }}>
+          <label htmlFor="typeCode" style={{textAlign: 'right', fontWeight: "bold"}}>Type of code:&nbsp;</label>
+          <div>CSS <label className="switch">
+            <input id="typeCode" type="checkbox"/>
+            <span className="slider round"></span>
+          </label> JavaScript</div>
+          <label htmlFor="tabName" style={{textAlign: 'right', fontWeight: "bold"}}>Tab name:&nbsp;</label>
+          <input
+            id="tabNameToManage"
+            onChange={AuiTabs.onTextSettingsChange}
+            type="text"
+            defaultValue={this.state.tabNameToManage}
+          ></input>
+          <label htmlFor="enabled" style={{textAlign: 'right', fontWeight: "bold"}}>Enabled:&nbsp;</label>
+          <div> {/* Enables the checkbox to be aligned to the left*/}
+            <input id="enabled" type='checkbox' style={{marginLeft: 0}}></input>
+          </div>
+      </div>
+      <button className={this.state.enableCrudButtons?"":"disabled"} style={{
+          backgroundColor: "var(--light-patina)",
+          border: "1px solid var(--gray)",
+          borderRadius: "0.3em",
+          opacity: "0.8"
+      }} onClick={()=>this.upsertTab()}>Upsert</button>&nbsp;
+      <button className={this.state.enableCrudButtons?"":"disabled"} style={{
+          backgroundColor: "var(--orange)",
+          border: "1px solid var(--gray)",
+          borderRadius: "0.3em",
+          opacity: "0.8"
+      }} onClick={()=>this.deleteTab()}>Delete</button>
+  </div>)
+  }
+}
+
+class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
+  static onTextSettingsChange: any;
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      css: "",
+      enableCrudButtons: false,
+      javascript: "",
+      selectedTab: "javascript",
+      tabs: [{
+        content: <></>,
+        enabled: true,
+        label: "-",
+        tabStyle: {},
+        testId: "-Tab"
+      }],
+      typeOfCode: "",
+      tabNameToManage: ""
+    }
+  }
+
+  componentDidMount() {
+    let loadedState = {
+      loaded: true,
+      css: this.props.css,
+      enableCrudButtons: this.props.enableCrudButtons,
+      javascript: this.props.javascript,
+      selectedTab: this.props.selectedTab,
+      tabs: this.props.tabs,
+      typeOfCode: this.props.typeOfCode,
+      tabNameToManage: this.props.tabNameToManage
+    };
+    this.props.tabs.map((tab,i) => {
+      if(tab["isJavascript"] !== undefined) {
+        loadedState.tabs[i].content = this.renderCont(tab.isJavascript);
+      } else if (tab["label"] === "⚙") {
+        loadedState.tabs[i].content = <ManageAdditionalTabs
+         css={this.props.css}
+         enableCrudButtons={this.props.enableCrudButtons}
+         javascript={this.props.javascript}
+         selectedTab={this.props.selectedTab}
+         tabs={this.props.tabs}
+         typeOfCode={this.props.typeOfCode}
+         tabNameToManage={this.props.tabNameToManage}
+        />;
+      }
+    });
+    this.setState(loadedState);
+  }
+
+  onTextSettingsChange(e) {
+    this.setState(
+      //@ts-ignore-next-line
+      {[e.target.id]: e.target.value},
+      () => {
+        if (this.state.tabNameToManage) {
+          this.setState({ enableCrudButtons: true });
+        } else {
+          this.setState({ enableCrudButtons: false });
+        }
+      }
+    );
   }
 
   renderCont(isJavascript) {
@@ -359,13 +466,10 @@ class AuiTabs extends React.Component<MyProps, MyState> {
       </textarea>
 
       <p>
-          Note: you need to reload the page to observe
-          your newly saved {
-              isJavascript ? "javascript" : "css"
-          }.
+        Note: you need to reload the page to observe
+        your newly saved { isJavascript ? "javascript" : "css" }.
       </p>
     </div>)
-
   }
 
   render() {
@@ -413,48 +517,38 @@ class AuiTabs extends React.Component<MyProps, MyState> {
   }
 }
 
-class ModalInterface extends React.Component<MyProps, MyState> {
+class ModalInterface extends React.Component<CssJsTabsProps, CssJsTabsState> {
   constructor(props) {
     super(props);
     this.state = {
-      css: "",
-      enableCrudButtons: false,
-      javascript: "",
-      selectedTab: "javascript",
+      css: "",         enableCrudButtons: false,
+      javascript: "",  selectedTab: "javascript",
       tabs: [{
-        content: null,
-        enabled: true,
+        content: null, enabled: true,
         isJavascript: true,
         label: "Default JS",
-        tabStyle: { color: "var(--dark-yellow)" },
+        tabStyle: { fontSize: "1.2em", color: "var(--dark-yellow)" },
         testId: "Default JSTab",
       }, {
-        content: null,
-        enabled: true,
+        content: null, enabled: true,
         isJavascript: false,
         label: "Default CSS",
-        tabStyle: { color: "var(--dark-blue)" },
+        tabStyle: { fontSize: "1.2em", color: "var(--dark-blue)" },
         testId: "Default CSSTab",
       }, {
-        content: null,
-        label: "⚙",
+        content: null, label: "⚙",
+        tabStyle: { fontSize: "1.2em", fontWeight: "bolder", color: "var(--gray)" },
         testId: "⚙Tab",
       }],
-      typeOfCode: "",
-      tabNameToManage: ""
+      typeOfCode: "",  tabNameToManage: ""
     };
   }
   /**
    * ```json
    * "state": {
-   *   "css": "string",
-   *   "enableCrudButtons": "boolean",
-   *   "loaded": "boolean|undefined",
-   *   "javascript": "string",
-   *   "selectedTab": "string",
-   *   "tabs": "any",
-   *   "typeOfCode": "string",
-   *   "tabNameToManage": "string",
+   *   "css": "string",         "enableCrudButtons": "boolean", "loaded": "boolean|undefined",
+   *   "javascript": "string",  "selectedTab": "string",        "tabs": "any",
+   *   "typeOfCode": "string",  "tabNameToManage": "string"
    * };
    * ```
    */
@@ -474,7 +568,7 @@ class ModalInterface extends React.Component<MyProps, MyState> {
   }
 
   updateUi() {
-    console.log(this.state);
+    console.log("updatedUi", this.state);
   }
   render() {
     return (
