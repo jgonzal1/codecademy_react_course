@@ -1,23 +1,24 @@
 @startuml architecture-src-index
-skinparam BackgroundColor #FFFFFF33
+skinparam BackgroundColor #FFFFFF66
 skinparam activity {
-  BackgroundColor #81A2BE44
+  BackgroundColor       #8EC29166
+  BackgroundColor<<b>>  #81A2BE44
+  BackgroundColor<<gr>> #CCCCCC66
   BackgroundColor<<h>>  #00000000
-  BackgroundColor<<gr>> #CCCCCCCC
   BackgroundColor<<r>>  #DE935F44
-  BackgroundColor<<g>>  #8EC29199
   BorderColor<<h>> #00000000
   'Styling for Conditionals:
   DiamondBackgroundColor #81A2BE44
 }
 skinparam note {
-  BackgroundColor #81A2BE22
+  BackgroundColor #8EC29144
   BorderThickness 0
   FontSize 12
   FontStyle italic
 }
 skinparam partition {
-  BackgroundColor #81A2BE44
+  BackgroundColor      #81A2BE44
+  BackgroundColor<<g>> #8EC29144
   BackgroundColor<<r>> #DE935F44
 }
 
@@ -25,37 +26,52 @@ title Activity diagram for Ultimate\n\
 Customizer's Global JS & CSS
 start
 partition "src/index.tsx" {
+  :root.render();
+  partition ModalInterface <<g>> {
   split
+    ->constructor;
+    :;
+  split again
     :render();
-    <<g>>:ModalInterface>
-    split
-      <<gr>>:renderContent();
-      <<g>>:<AuiTabs/> >
-      :componentDidMount();
-      note right
-        this.setState
-        form parent
-      end note
+    partition AuiTabs <<g>> {
       split
-        :manage
-        Additional
-        Tabs();
+        ->constructor;
+        :;
+      split again
+        :componentDidMount();
+        note right
+          this.setState
+          form parent
+        end note
         split
-          :upsertTab();
+          partition ManageAdditionalTabs <<g>> {
+            split
+              :upsertTab();
+            split again
+              <<r>>:deleteTab();
+              end
+            split again
+              ->render;
+              :;
+            end split
+          }
         split again
-          :deleteTab();
-          end
+          :renderCont();
         end split
       split again
+        -><b><color:#A54242>render();
+        :;
       end split
-      :renderCont();
-    split again
-      <<gr>>:buttons>
-      <<gr>>:OK();
-    end split
+    }
   split again
-    :constructor();
+  ->render\nContent();
+    <<gr>>:;
+  split again
+    ->buttons\nOK()\n;
+    <<gr>>:>
+    <<gr>>:;
   end split
+  }
 }
 stop
 @enduml

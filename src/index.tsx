@@ -5,9 +5,7 @@ import ReactDOM from 'react-dom/client';
 import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
 import $ from 'jquery';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root')??document.createElement('div')
-);
+const root = ReactDOM.createRoot($('#root')[0]);
 
 interface CssJsTabsProps {
   css: string,
@@ -233,8 +231,9 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
  */
   upsertTab() {
     if(this.state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
-    const isJavascript = $("#typeCode").checked;
-    const enabled = $("#enabled").checked;
+    const isJavascript = $("#typeCode")[0].checked;
+    const enabled = $("#enabled")[0].checked;
+    console.log("IsJs", isJavascript, "Enabled", enabled);
     let tabs = this.state.tabs;
     console.log(`Tabs on upsertTab: ${tabs.map(t=>t.label)}.`);
     const previousTab = tabs.filter(
@@ -356,15 +355,6 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
 }
 
 class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
-  /**
-   * ```json
-   * "state": {
-   *   "css": "string",         "enableCrudButtons": "boolean", "loaded": "boolean|undefined",
-   *   "javascript": "string",  "selectedTab": "string",        "tabs": "any",
-   *   "typeOfCode": "string",  "tabNameToManage": "string"
-   * };
-   * ```
-   */
   constructor(props) {
     super(props)
     this.state = structuredClone(this.props) ?? JSON.parse(
@@ -405,7 +395,9 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
   }
 
   onTextSettingsChange(e) {
-    console.log("AuiTabs.onTextSettingsChange", e.target);
+    console.log(
+      "AuiTabs.onTextSettingsChange", this.state, e.target.value
+    ); // ToDo change so every char can actually be seen and the saves are delayed
     this.setState(
       //@ts-ignore-next-line
       {[e.target.id]: e.target.value},
@@ -437,7 +429,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       <textarea
         className="h320 w100p"
         onChange={this.onTextSettingsChange.bind(this)}
-        value={isJavascript ? this.state.javascript : this.state.css}
+        value={ isJavascript ? this.state.javascript : this.state.css }
       >{/*defaultValue allows writing, but value does not*/}
       </textarea>
 
@@ -455,22 +447,42 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
   );
   
 
+  /** @param _
+   * ```json
+   *{
+   *· "_isAnalyticsEvent": true,
+   *· "context": [{
+   *·   "componentName": "tabs",
+   *·   "packageName": "@atlaskit/tabs",
+   *·   "packageVersion": "13.4.3"
+   *· }],
+   *· "handlers": [],
+   *· "hasFired": false,
+   *· "payload": {
+   *·   "action": "clicked",
+   *·   "actionSubject": "tabs",
+   *·   "attributes": {
+   *·     "componentName": "tabs",
+   *·     "packageName": "@atlaskit/tabs",
+   *·     "packageVersion": "13.4.3"
+   *·   }
+   *· }
+   *}
+   * ```
+   */
   render() {
 
     if(this.state.loaded) {
-      console.log(
-        "AuiTabs.state on render\n", {
-          "css":this.state.css
-          ,"enableCrudButtons": this.state.enableCrudButtons
-          ,"javascript":this.state.javascript
-          ,"selectedTab":this.state.selectedTab
-          ,"typeOfCode":this.state.typeOfCode
-          ,"tabNameToManage":this.state.tabNameToManage
-        },
-        "  tabs.label\n",
-        this.state.tabs.map(t=>t.label),
-        "\n\n"
-      );
+      console.log(`AuiTabs.state on render: {
+        "css": "${this.state.css}"
+        ,"enableCrudButtons": ${this.state.enableCrudButtons}
+        ,"javascript": "${this.state.javascript}"
+        ,"selectedTab": "${this.state.selectedTab}"
+        ,"typeOfCode": "${this.state.typeOfCode}"
+        ,"tabNameToManage": "${this.state.tabNameToManage}"
+        ,"tabs.labels": [${
+          this.state.tabs.map(t=>t.label).toString()
+      }]\n}\n\n`);
       const tabs = this.state.tabs;
       const tabHeaders = tabs.map((val) => (
         <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
@@ -486,7 +498,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       ));
       return (<React.Fragment>
         <Tabs id="tabsParent" onChange = {
-          (index) => console.log(`Selected Tab #${index + 1}.`)
+          (index, _) => console.log(`Selected Tab #${index + 1}.`)
         }>
           <TabList>{tabHeaders}</TabList>
           {tabPanels}
