@@ -89,7 +89,7 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
   }
 
   render() {
-    console.log("CodeBody render state", this.state);
+    console.log("CodeBody.render/state", this.state);
     return (<div>
     <p>{this.state.isJavascript ?
       <span>
@@ -281,7 +281,9 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       ));
       return (<React.Fragment>
         <Tabs id="tabsParent" onChange = {
-          (index, _) => console.log(`AuiTabs.render/Selected Tab #${index + 1}.`)
+          (index, _) => {
+            console.log(`AuiTabs.render/selectedTab#${index + 1}.`)
+          }
         }>
           <TabList>{tabHeaders}</TabList>
           {tabPanels}
@@ -314,8 +316,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
   }
 
   onTextSettingsChange(e) {
-    console.log(
-      "ModalInterface.onTextSettingsChange",
+    console.log("ModalInterface.onTextSettingsChange/i",
       e.target.id, e.target.value,
       "state", this.state
     );
@@ -323,9 +324,8 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       //@ts-ignore-next-line
       {[e.target.id]: e.target.value},
       () => {
-        console.log(
-          "ModalInterface.onTextSettingsChange",
-          "newState", this.state
+        console.log("ModalInterface.onTextSettingsChange/nS",
+          this.state
         );
         if (this.state.tabNameToManage) {
           this.setState({ enableCrudButtons: true });
@@ -368,9 +368,8 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     };
     let tabs = settings.tabs;
     if(!settings.previousTab) {
-      console.log(
-        "ManageAdditionalTabs.modifyTabsVarBasedOnUpsert/InsertingTab\n",
-        settings.tabNameToManage, "\n\n"
+      console.log(`MngAddTbs.modTabsVarBasedOnUpsert/I
+        \n${settings.tabNameToManage}"\n\n`
       );
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
@@ -381,9 +380,8 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
         )
       );
     } else {
-      console.log(
-        "ManageAdditionalTabs.modifyTabsVarBasedOnUpsert/ModifyingTab\n",
-        settings.tabNameToManage, "\n\n"
+      console.log(`MngAddTbs.modTabsVarBasedOnUpsert/M
+        \n${settings.tabNameToManage}"\n\n`
       );
       tabs = tabs.map(existingTab => {
         if(existingTab.label === settings.tabNameToManage) {
@@ -419,8 +417,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     const isJavascript = $("#typeCode")[0].checked;
     const enabled = $("#enabled")[0].checked;
     let tabs = this.state.tabs;
-    console.log(
-      `ManageAdditionalTabs.upsertTab: {
+    console.log(`MngAddTbs.upsertTab/uniques: {
       "isJavascript": ${isJavascript},
       "enabled": ${enabled},
       "tabs": "${tabs.map(t=>t.label)}"\n}`
@@ -445,8 +442,8 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
         "isJavascript": isJavascript,
         "testId": this.state.tabNameToManage+"Tab",
     };
-    console.log(
-      "ManageAdditionalTabs.upsertTab/\n  tab:", this.state.tabNameToManage,
+    console.log("MngAddTbs.upsertTab/prevVsNew",
+      "\n  tab:", this.state.tabNameToManage,
       "\n  previousCustomTab:", previousCustomTabCheckers,
       "\n  newCustomTab:", newCustomTabCheckers
     );
@@ -456,8 +453,8 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       previousCustomTabCheckers["isJavascript"] === newCustomTabCheckers["isJavascript"] &&
       previousCustomTabCheckers["enabled"] === newCustomTabCheckers["enabled"]
     ) {
-      console.log(`ManageAdditionalTabs.upsertTab/
-      No changes on Global JS/CSS tab Upsert`);
+      console.log(`MngAddTbs.upsertTab/noChanges
+      on Global JS/CSS tab Upsert`);
       return;
     }
     tabs = this.modifyTabsVarBasedOnUpsert({
@@ -471,20 +468,17 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       tabs: tabs,
       typeOfCode: this.state.typeOfCode
     })
-    console.log(
-      "ManageAdditionalTabs.upsertTab/\n  state.tabs before:",
-      this.state.tabs
+    console.log("MngAddTbs.upsertTab/tabsBefore:" +
+      "\n", this.state.tabs
     );
-    console.log(
-      "ManageAdditionalTabs.upsertTab/\n  tabs to be changed:",
-      tabs
+    console.log("MngAddTbs.upsertTab/tabs2BChanged:" +
+      "\n", tabs
     );
     this.setState(
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
     );
-    console.log(
-      "ManageAdditionalTabs.upsertTab/\n  state.tabs after:",
-      this.state.tabs
+    console.log("MngAddTbs.upsertTab/tabsAfter:" +
+      "\n", this.state.tabs
     );
   }
 
@@ -499,7 +493,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     );
     
     if(!tabToDeleteAsChild.length) {
-      console.log("ManageAdditionalTabs.deleteTab/\nThe provided tab", this.state.tabNameToManage, "does not exist");
+      console.log("MngAddTbs.deleteTab/\nThe provided tab", this.state.tabNameToManage, "does not exist");
       return;
     } 
     const tabsAfterDeletion = tabs.filter(tab => tab.label!==this.state.tabNameToManage);
@@ -507,7 +501,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     stateToModify.tabs = tabsAfterDeletion;
     //const tabInDom = document.querySelector(`[data-testid="${tabName}Tab"]`);
     //if(!tabInDom) {
-    //  console.log("ManageAdditionalTabs.deleteTab/\nThe provided tab", tabName, "does not exist");
+    //  console.log("MngAddTbs.deleteTab/\nThe provided tab", tabName, "does not exist");
     //  return;
     //}
     this.setState( stateToModify );
@@ -519,7 +513,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       )
     );
     //tabInDom.remove();
-    console.log(`ManageAdditionalTabs.deleteTab/\nDeleted tab ${
+    console.log(`MngAddTbs.deleteTab/\nDeleted tab ${
       this.state.tabNameToManage
     }.\n`);
   }
