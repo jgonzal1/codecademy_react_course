@@ -1,4 +1,3 @@
-// BREAKING CHANGE
 //#region Dependencies
 import './index.css';
 import React, { ReactNode } from 'react';
@@ -88,8 +87,19 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
     }
   }
 
+  /*componentDidUpdate(prevProps, prevState) {
+    console.log("CodeBody did update")
+  }*/
+
   render() {
-    console.log("CodeBody.render/state", this.state);
+    console.log(`CodeBody.render/state: {
+      "css": "${this.state.css}"
+      ,"enableCrudButtons": ${this.state.enableCrudButtons}
+      ,"isJavascript": "${this.state.isJavascript}"
+      ,"javascript": "${this.state.javascript}"
+      ,"selectedTab": "${this.state.selectedTab}"
+      ,"typeOfCode": "${this.state.typeOfCode}"\n}
+    \n`);
     return (<div>
     <p>{this.state.isJavascript ?
       <span>
@@ -144,7 +154,21 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
     }
   }
 
+  /*componentDidUpdate(prevProps, prevState) {
+    console.log("ManageAdditionalTabs did update");
+  }*/
+
   render() {
+    /*console.log(`MngAddTbs.render/state: {
+      "css": "${this.state.css}"
+      ,"enableCrudButtons": ${this.state.enableCrudButtons}
+      ,"javascript": "${this.state.javascript}"
+      ,"selectedTab": "${this.state.selectedTab}"
+      ,"typeOfCode": "${this.state.typeOfCode}"
+      ,"tabNameToManage": "${this.state.tabNameToManage}"
+      ,"tabs.labels": [${
+        this.state.tabs.map(t=>t.label).toString()
+    }]\n}\n\n`);*/
     return (<div>
       <div className="grid-2-cols">
           <label htmlFor="typeCode" className="label-for-input">Type of code:&nbsp;</label>
@@ -166,13 +190,13 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       </div>
       <button className="custom-css-js-button"
         style={{backgroundColor: "var(--light-patina)"}}
-        disabled={!this.state.enableCrudButtons}
-        onClick={()=>this.props.upsertTab()}
+        disabled={!this.props.enableCrudButtons}
+        onClick={()=>this.props.upsertTab(this.state)}
       >Upsert</button>&nbsp;
       <button className="custom-css-js-button"
         style={{backgroundColor: "var(--light-orange)"}}
-        disabled={!this.state.enableCrudButtons}
-        onClick={()=>this.props.deleteTab()}
+        disabled={!this.props.enableCrudButtons}
+        onClick={()=>this.props.deleteTab(this.state)}
       >Delete</button>
   </div>)
   }
@@ -192,43 +216,9 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
     }
   }
 
-  componentDidMount() {
-    let loadedState = {
-      loaded: true,
-      css: this.props.css,
-      enableCrudButtons: this.props.enableCrudButtons,
-      javascript: this.props.javascript,
-      selectedTab: this.props.selectedTab,
-      tabs: this.props.tabs,
-      typeOfCode: this.props.typeOfCode,
-      tabNameToManage: this.props.tabNameToManage
-    };
-    this.props.tabs.map((tab,i) => {
-      if(tab["isJavascript"] !== undefined) {
-        loadedState.tabs[i].content = this.props.renderCont(tab.isJavascript, this.props);
-        return "codeTab";
-      } else if (tab["label"] === "⚙") {
-        loadedState.tabs[i].content = <ManageAdditionalTabs
-          css={this.props.css}
-          enableCrudButtons={this.props.enableCrudButtons}
-          javascript={this.props.javascript}
-          selectedTab={this.props.selectedTab}
-          tabs={this.props.tabs}
-          typeOfCode={this.props.typeOfCode}
-          tabNameToManage={this.props.tabNameToManage}
-          onTextSettingsChange={this.props.onTextSettingsChange.bind(this)}
-          modifyTabsVarBasedOnUpsert={this.props.modifyTabsVarBasedOnUpsert}
-          upsertTab={this.props.upsertTab}
-          deleteTab={this.props.deleteTab}
-          renderCont={this.props.renderCont}
-          Panel={this.props.Panel}
-        />;
-        return "settingsTab";
-      }
-      return "unknownTab";
-    });
-    this.setState(loadedState);
-  }
+  /*componentDidUpdate(prevProps, prevState) {
+    console.log("AuiTabs did update")
+  }*/
 
   /** @param _
    * ```json
@@ -253,46 +243,42 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
    *}
    * ```
    */
-  render() {
-
-    if(this.state.loaded) {
-      console.log(`AuiTabs.render/state: {
-        "css": "${this.state.css}"
-        ,"enableCrudButtons": ${this.state.enableCrudButtons}
-        ,"javascript": "${this.state.javascript}"
-        ,"selectedTab": "${this.state.selectedTab}"
-        ,"typeOfCode": "${this.state.typeOfCode}"
-        ,"tabNameToManage": "${this.state.tabNameToManage}"
-        ,"tabs.labels": [${
-          this.state.tabs.map(t=>t.label).toString()
-      }]\n}\n\n`);
-      const tabs = this.state.tabs;
-      const tabHeaders = tabs.map((val) => (
-        <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
-          <span style={val.tabStyle}>{val.label}</span>
-        </Tab>
-      ));
-      const tabPanels = tabs.map((val) => (
-        <TabPanel testId={val.testId+"TabPanel"} key={val.testId+"TabPanel"}>
-          <this.props.Panel testId={val.testId+"TPanel"} key={val.testId+"TPanel"}>
-            {val.content}
-          </this.props.Panel>
-        </TabPanel>
-      ));
-      return (<React.Fragment>
-        <Tabs id="tabsParent" onChange = {
-          (index, _) => {
-            console.log(`AuiTabs.render/selectedTab#${index + 1}.`)
-          }
-        }>
-          <TabList>{tabHeaders}</TabList>
-          {tabPanels}
-        </Tabs>
-      </React.Fragment>)
-    } else {
-      return <div>Awaiting AuiTabs mount</div>
-    }
-  }
+  render() { return (
+    <React.Fragment>
+      <Tabs id="tabsParent" onChange = {
+        (index, _) => console.log(`AuiTabs.render/selectedTab: ${this.state.tabs[index].label}.`)
+      }>
+        <TabList>{this.state.tabs.map((val) => (
+          <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
+            <span style={val.tabStyle}>{val.label}</span>
+          </Tab>
+        ))}</TabList>
+        {this.state.tabs.map((val,i) => (<TabPanel testId={val.testId+"TabPanel"} key={val.testId+"TabPanel"}>
+          <this.props.Panel testId={val.testId+"TPanel"} key={val.testId+"TPanel"}>{
+            val["isJavascript"] !== undefined ?
+              this.props.renderCont(val.isJavascript, this.props) :
+            val["label"] === "⚙" ?
+              <ManageAdditionalTabs
+                css={this.props.css}
+                enableCrudButtons={this.props.enableCrudButtons}
+                javascript={this.props.javascript}
+                selectedTab={this.props.selectedTab}
+                tabs={this.props.tabs}
+                typeOfCode={this.props.typeOfCode}
+                tabNameToManage={this.props.tabNameToManage}
+                onTextSettingsChange={this.props.onTextSettingsChange.bind(this)}
+                modifyTabsVarBasedOnUpsert={this.props.modifyTabsVarBasedOnUpsert}
+                upsertTab={this.props.upsertTab}
+                deleteTab={this.props.deleteTab}
+                renderCont={this.props.renderCont}
+                Panel={this.props.Panel}
+              />
+            : null
+          }</this.props.Panel>
+        </TabPanel>))}
+      </Tabs>
+    </React.Fragment>
+  )}
 }
 
 class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabsState> {
@@ -316,60 +302,84 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
   }
 
   onTextSettingsChange(e) {
-    console.log("ModalInterface.onTextSettingsChange/i",
-      e.target.id, e.target.value,
-      "state", this.state
-    );
     this.setState(
       //@ts-ignore-next-line
       {[e.target.id]: e.target.value},
       () => {
-        console.log("ModalInterface.onTextSettingsChange/nS",
-          this.state
-        );
         if (this.state.tabNameToManage) {
-          this.setState({ enableCrudButtons: true });
+          this.setState(
+            { enableCrudButtons: true },
+            () => {
+              console.log(`ModalInterface.onTextSettingsChange/]TN`);/*\n/state: {
+                "css": "${this.state.css}"
+                ,"enableCrudButtons": ${this.state.enableCrudButtons}
+                ,"javascript": "${this.state.javascript}"
+                ,"selectedTab": "${this.state.selectedTab}"
+                ,"typeOfCode": "${this.state.typeOfCode}"
+                ,"tabNameToManage": "${this.state.tabNameToManage}"
+                ,"tabs.labels": [${
+                  this.state.tabs.map(t=>t.label).toString()
+                }]\n}\n\n`
+              );*/
+              this.forceUpdate();
+            }
+          );
         } else {
-          this.setState({ enableCrudButtons: false });
+          this.setState(
+            { enableCrudButtons: false },
+            ()=>console.log(`ModalInterface.onTextSettingsChange/!TN\n/state: {
+                "css": "${this.state.css}"
+                ,"enableCrudButtons": ${this.state.enableCrudButtons}
+                ,"javascript": "${this.state.javascript}"
+                ,"selectedTab": "${this.state.selectedTab}"
+                ,"typeOfCode": "${this.state.typeOfCode}"
+                ,"tabNameToManage": "${this.state.tabNameToManage}"
+                ,"tabs.labels": [${
+                  this.state.tabs.map(t=>t.label).toString()
+              }]\n}\n\n`
+            )
+          );
         }
       }
     );
   }
 
-  modifyTabsVarBasedOnUpsert(settings: {
-    css: string,
-    enabled: boolean,
-    isJavascript: boolean,
-    javascript: string,
-    previousTab: any,
-    selectedTab: string,
-    tabNameToManage: string,
-    tabs: any,
-    typeOfCode: string,
-  }) {
+  modifyTabsVarBasedOnUpsert(state) {
+    console.log(`ModalInterface.modifyTabsVarBasedOnUpsert/i
+      /state: {
+        "css": "${state.css}"
+        ,"enableCrudButtons": ${state.enableCrudButtons}
+        ,"javascript": "${state.javascript}"
+        ,"selectedTab": "${state.selectedTab}"
+        ,"typeOfCode": "${state.typeOfCode}"
+        ,"tabNameToManage": "${state.tabNameToManage}"
+        ,"tabs.labels": [${
+          state.tabs.map(t=>t.label).toString()
+      }]\n}\n\n`
+    );
     const tabToUpsert = {
       "content": <CodeBody
         css=''
         enableCrudButtons={false}
-        isJavascript={settings.isJavascript}
+        isJavascript={state.isJavascript}
         javascript=''
         selectedTab=''
-        tabName={settings.tabNameToManage}
+        tabName={state.tabNameToManage}
         typeOfCode=''
         onTextSettingsChange={this.onTextSettingsChange.bind(this)}
       />,
-      "enabled": settings.enabled,
-      "isJavascript": settings.isJavascript,
-      "label": settings.tabNameToManage,
+      "enabled": state.enabled,
+      "isJavascript": state.isJavascript,
+      "label": state.tabNameToManage,
       "tabStyle": { color: `var(--dark-${
-        settings.isJavascript?"yellow":"blue"
+        state.isJavascript?"yellow":"blue"
       })` },
-      "testId": settings.tabNameToManage+"Tab",
+      "testId": state.tabNameToManage+"Tab",
     };
-    let tabs = settings.tabs;
-    if(!settings.previousTab) {
+    let tabs = state.tabs;
+    if(!state.previousTab) {
       console.log(`MngAddTbs.modTabsVarBasedOnUpsert/I
-        \n${settings.tabNameToManage}"\n\n`
+        \n${state.tabNameToManage}"\n\n`
       );
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
@@ -381,10 +391,10 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       );
     } else {
       console.log(`MngAddTbs.modTabsVarBasedOnUpsert/M
-        \n${settings.tabNameToManage}"\n\n`
+        \n${state.tabNameToManage}"\n\n`
       );
       tabs = tabs.map(existingTab => {
-        if(existingTab.label === settings.tabNameToManage) {
+        if(existingTab.label === state.tabNameToManage) {
           return tabToUpsert;
         } else {
           return existingTab;
@@ -407,13 +417,23 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
  * 
  *  workingTab.innerText = tabName;
  * 
- *  ToDo set <AuiTabs tabs[k]content: this.renderCont(true)
- *  ToDo and save status correctly to API
+ *  ToDo save status correctly to API
  *  ToDo TypeCode, Enabled and InnerContents behavior
- *  ToDo textAreas are written in renderCont()
  */
-  upsertTab() {
-    if(this.state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
+  upsertTab(state) {
+    console.log(`ModalInterface.upsertTab/i
+      /state: {
+        "css": "${state.css}"
+        ,"enableCrudButtons": ${state.enableCrudButtons}
+        ,"javascript": "${state.javascript}"
+        ,"selectedTab": "${state.selectedTab}"
+        ,"typeOfCode": "${state.typeOfCode}"
+        ,"tabNameToManage": "${state.tabNameToManage}"
+        ,"tabs.labels": [${
+          state.tabs.map(t=>t.label).toString()
+      }]\n}\n\n`
+    );
+    if(state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
     const isJavascript = $("#typeCode")[0].checked;
     const enabled = $("#enabled")[0].checked;
     let tabs = this.state.tabs;
@@ -423,7 +443,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       "tabs": "${tabs.map(t=>t.label)}"\n}`
     );
     const previousTab = tabs.filter(
-      tab => tab.label === this.state.tabNameToManage
+      tab => tab.label === state.tabNameToManage
     )[0];
     let previousCustomTabCheckers = {};
     if(!!previousTab && previousTab.length) {
@@ -457,19 +477,9 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       on Global JS/CSS tab Upsert`);
       return;
     }
-    tabs = this.modifyTabsVarBasedOnUpsert({
-      css: this.state.css,
-      enabled: enabled,
-      isJavascript: isJavascript,
-      javascript: this.state.javascript,
-      previousTab: previousTab,
-      selectedTab: this.state.selectedTab,
-      tabNameToManage: this.state.tabNameToManage,
-      tabs: tabs,
-      typeOfCode: this.state.typeOfCode
-    })
+    tabs = this.modifyTabsVarBasedOnUpsert(state)
     console.log("MngAddTbs.upsertTab/tabsBefore:" +
-      "\n", this.state.tabs
+      "\n", state.tabs
     );
     console.log("MngAddTbs.upsertTab/tabs2BChanged:" +
       "\n", tabs
@@ -478,26 +488,38 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       state => ({ tabs: Object.assign([], state.tabs, tabs) })
     );
     console.log("MngAddTbs.upsertTab/tabsAfter:" +
-      "\n", this.state.tabs
+      "\n", state.tabs
     );
   }
 
-  deleteTab() {
-    if(this.state.tabNameToManage.search("\"")!==-1) {
+  deleteTab(state) {
+    console.log(`ModalInterface.deleteTab/i
+      /state: {
+        "css": "${state.css}"
+        ,"enableCrudButtons": ${state.enableCrudButtons}
+        ,"javascript": "${state.javascript}"
+        ,"selectedTab": "${state.selectedTab}"
+        ,"typeOfCode": "${state.typeOfCode}"
+        ,"tabNameToManage": "${state.tabNameToManage}"
+        ,"tabs.labels": [${
+          state.tabs.map(t=>t.label).toString()
+      }]\n}\n\n`
+    );
+    if(state.tabNameToManage.search("\"")!==-1) {
       alert("Please select a tab name without quotes");
       return;
     }
-    const tabs = this.state.tabs;
+    const tabs = state.tabs;
     const tabToDeleteAsChild = tabs.filter(
-      tab => tab.label === this.state.tabNameToManage
+      tab => tab.label === state.tabNameToManage
     );
     
     if(!tabToDeleteAsChild.length) {
-      console.log("MngAddTbs.deleteTab/\nThe provided tab", this.state.tabNameToManage, "does not exist");
+      console.log("MngAddTbs.deleteTab/\nThe provided tab", state.tabNameToManage, "does not exist");
       return;
     } 
-    const tabsAfterDeletion = tabs.filter(tab => tab.label!==this.state.tabNameToManage);
-    let stateToModify = {...this.state};
+    const tabsAfterDeletion = tabs.filter(tab => tab.label!==state.tabNameToManage);
+    let stateToModify = {...state};
     stateToModify.tabs = tabsAfterDeletion;
     //const tabInDom = document.querySelector(`[data-testid="${tabName}Tab"]`);
     //if(!tabInDom) {
@@ -514,13 +536,24 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     );
     //tabInDom.remove();
     console.log(`MngAddTbs.deleteTab/\nDeleted tab ${
-      this.state.tabNameToManage
+      state.tabNameToManage
     }.\n`);
   }
 
   renderCont(isJavascript, state) {
-    console.log("renderCont.state", state);
-
+    /*console.log(`ModalInterface.renderCont/i
+      /isJavascript: ${isJavascript}
+      /state: {
+        "css": "${state.css}"
+        ,"enableCrudButtons": ${state.enableCrudButtons}
+        ,"javascript": "${state.javascript}"
+        ,"selectedTab": "${state.selectedTab}"
+        ,"typeOfCode": "${state.typeOfCode}"
+        ,"tabNameToManage": "${state.tabNameToManage}"
+        ,"tabs.labels": [${
+          state.tabs.map(t=>t.label).toString()
+      }]\n}\n\n`
+    );*/
     return (<div>
       <p>{isJavascript ?
         <span>
@@ -534,7 +567,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       </p>
 
       <textarea
-        id={state.isJavascript ? "javascript" : "css"}
+        id={isJavascript ? "javascript" : "css"}
         className="h320 w100p"
         onChange={this.onTextSettingsChange.bind(this)}
         defaultValue={ isJavascript ? state.javascript : state.css }
@@ -548,13 +581,21 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     </div>)
   }
 
-  Panel = (
-    {children, testId}: {children: ReactNode; testId?: string;}
-  ) => (
+  Panel = ( {children, testId}: {children: ReactNode; testId?: string;} ) => (
     <div data-testid={testId}>{children}</div>
   );
 
   render() {
+    /*console.log(`ModalInterface.render/state: {
+      "css": "${this.state.css}"
+      ,"enableCrudButtons": ${this.state.enableCrudButtons}
+      ,"javascript": "${this.state.javascript}"
+      ,"selectedTab": "${this.state.selectedTab}"
+      ,"typeOfCode": "${this.state.typeOfCode}"
+      ,"tabNameToManage": "${this.state.tabNameToManage}"
+      ,"tabs.labels": [${
+        this.state.tabs.map(t=>t.label).toString()
+    }]\n}\n\n`);*/
     return (<AuiTabs
       css={this.state.css}
       enableCrudButtons={this.state.enableCrudButtons}
@@ -564,10 +605,10 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       typeOfCode={this.state.typeOfCode}
       tabNameToManage={this.state.tabNameToManage}
       onTextSettingsChange={this.onTextSettingsChange.bind(this)}
-      modifyTabsVarBasedOnUpsert={this.modifyTabsVarBasedOnUpsert}
-      upsertTab={this.upsertTab}
-      deleteTab={this.deleteTab}
-      renderCont={this.renderCont}
+      modifyTabsVarBasedOnUpsert={this.modifyTabsVarBasedOnUpsert.bind(this)}
+      upsertTab={this.upsertTab.bind(this)}
+      deleteTab={this.deleteTab.bind(this)}
+      renderCont={this.renderCont.bind(this)}
       Panel={this.Panel}
     />);
   }
