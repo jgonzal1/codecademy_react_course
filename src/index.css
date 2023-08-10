@@ -131,3 +131,7 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+.css-1qk2ya5-TabList [role="tab"] {
+  font-weight: bold;
+}

@@ -249,16 +249,22 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
   }
 }
 
-class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
+class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabsState> {
   constructor(props) {
     super(props)
     this.state = {
-      css: this.props.css,
-      enableCrudButtons: this.props.enableCrudButtons,
-      javascript: this.props.javascript,
-      selectedTab: this.props.selectedTab,
-      tabs: this.props.tabs,
-      tabNameToManage: this.props.tabNameToManage
+      css : this.props.css,
+      enableCrudButtons : this.props.enableCrudButtons,
+      javascript : this.props.javascript,
+      selectedTab : this.props.selectedTab,
+      tabs : this.props.tabs,
+      tabNameToManage : this.props.tabNameToManage,
+      onTextSettingsChange : this.onTextSettingsChange.bind(this),
+      modifyTabsVarBasedOnUpsert : this.modifyTabsVarBasedOnUpsert.bind(this),
+      upsertTab : this.upsertTab.bind(this),
+      deleteTab : this.deleteTab.bind(this),
+      renderCont : this.renderCont.bind(this),
+      Panel : this.Panel.bind(this)
     }
   }
 
@@ -288,91 +294,13 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       ).toString() :
       "";
     if(update !== "") {
-      console.log(`AuiTabs did update: {\n  ${update}\n}`);
+      console.log(`ModalInterface did update: {\n  ${update}\n}`);
     }
     //this.setState({tabsStateToParentCallback: this.props.tabs});
   }
 
-  /** @param _
-   * ```json
-   *{
-   *· "_isAnalyticsEvent": true,
-   *· "context": [{
-   *·   "componentName": "tabs",
-   *·   "packageName": "@atlaskit/tabs",
-   *·   "packageVersion": "13.4.3"
-   *· }],
-   *· "handlers": [],
-   *· "hasFired": false,
-   *· "payload": {
-   *·   "action": "clicked",
-   *·   "actionSubject": "tabs",
-   *·   "attributes": {
-   *·     "componentName": "tabs",
-   *·     "packageName": "@atlaskit/tabs",
-   *·     "packageVersion": "13.4.3"
-   *·   }
-   *· }
-   *}
-   * ```
-   */
-  render() { return (
-    <React.Fragment>
-      <Tabs id="tabsParent" onChange = {
-        (index, _) => console.log(`AuiTabs.render/selectedTab: ${this.state.tabs[index].label}.`)
-      }>
-        <TabList>{this.state.tabs.map((val) => (
-          <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
-            <span style={val.tabStyle}>{val.label}</span>
-          </Tab>
-        ))}</TabList>
-        {this.state.tabs.map((val,i) => (<TabPanel testId={val.testId+"TabPanel"} key={val.testId+"TabPanel"}>
-          <this.props.Panel testId={val.testId+"TPanel"} key={val.testId+"TPanel"}>{
-            val["isJavascript"] !== undefined ?
-              this.props.renderCont(val.isJavascript, this.props) :
-            val["label"] === "⚙" ?
-              <ManageAdditionalTabs
-                css={this.props.css}
-                enableCrudButtons={this.props.enableCrudButtons}
-                javascript={this.props.javascript}
-                selectedTab={this.props.selectedTab}
-                tabs={this.props.tabs}
-                tabNameToManage={this.props.tabNameToManage}
-                onTextSettingsChange={this.props.onTextSettingsChange.bind(this)}
-                modifyTabsVarBasedOnUpsert={this.props.modifyTabsVarBasedOnUpsert}
-                upsertTab={this.props.upsertTab}
-                deleteTab={this.props.deleteTab}
-                renderCont={this.props.renderCont}
-                Panel={this.props.Panel}
-              />
-            : null
-          }</this.props.Panel>
-        </TabPanel>))}
-      </Tabs>
-    </React.Fragment>
-  )}
-}
-
-class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabsState> {
-  constructor(props) {
-    super(props)
-    this.state = {
-      css : this.props.css,
-      enableCrudButtons : this.props.enableCrudButtons,
-      javascript : this.props.javascript,
-      selectedTab : this.props.selectedTab,
-      tabs : this.props.tabs,
-      tabNameToManage : this.props.tabNameToManage,
-      onTextSettingsChange : this.onTextSettingsChange.bind(this),
-      modifyTabsVarBasedOnUpsert : this.modifyTabsVarBasedOnUpsert.bind(this),
-      upsertTab : this.upsertTab.bind(this),
-      deleteTab : this.deleteTab.bind(this),
-      renderCont : this.renderCont.bind(this),
-      Panel : this.Panel.bind(this)
-    }
-  }
-
-  // stateInParentCallback(tabsStateFromChild){ this.setState({tabs:{...tabsStateFromChild}}); }
+  //#region Functions
+  //stateInParentCallback(tabsStateFromChild){ this.setState({tabs:{...tabsStateFromChild}}); }
 
   onTextSettingsChange(e) {
     this.setState(
@@ -476,21 +404,21 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
   }
 
   /**
- *  const typeCode = isJavascript ? "JS" : "CSS";
- *  const nodeToClone = document.querySelector(`[data-testid="Default ${typeCode}Tab"]`);
- *  if(!nodeToClone) {
- *    console.error("Node to clone was null");
- *  }
- *  workingTab = document.querySelector(`[data-testid="${tabName}Tab"]`);
- *  workingTab.setAttribute("aria-posinset", (domTabs.length+1).toString());
- *  workingTab.setAttribute("data-testid", tabName+"Tab");
- *  document.querySelector('[role="tablist"]').appendChild(workingTab);
- * 
- *  workingTab.innerText = tabName;
- * 
- *  ToDo save status correctly to API
- *  ToDo TypeCode, Enabled and InnerContents behavior
- */
+   *  const typeCode = isJavascript ? "JS" : "CSS";
+   *  const nodeToClone = document.querySelector(`[data-testid="Default ${typeCode}Tab"]`);
+   *  if(!nodeToClone) {
+   *    console.error("Node to clone was null");
+   *  }
+   *  workingTab = document.querySelector(`[data-testid="${tabName}Tab"]`);
+   *  workingTab.setAttribute("aria-posinset", (domTabs.length+1).toString());
+   *  workingTab.setAttribute("data-testid", tabName+"Tab");
+   *  document.querySelector('[role="tablist"]').appendChild(workingTab);
+   * 
+   *  workingTab.innerText = tabName;
+   * 
+   *  ToDo save status correctly to API
+   *  ToDo TypeCode, Enabled and InnerContents behavior
+   */
   upsertTab(state) {
     //this.state actually works?
 
@@ -550,16 +478,22 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
   }
 
   deleteTab(state) {
+    if(state.tabNameToManage.search("\"")!==-1) {
+      alert("Please select a tab name without quotes");
+      return;
+    }
+    const typeOfCode = state.isJavascript?"JS":"CSS";
     console.log(`ModalInterface.deleteTab/i
       /state: {
         "css": "${state.css}"
         ,"javascript": "${state.javascript}"
-        ,"typeOfCode": "${state.typeOfCode}"
+        ,"typeOfCode": "${typeOfCode}"
         ,"tabNameToManage": "${state.tabNameToManage}"
         ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}
     \n\n`);
-    if(state.tabNameToManage.search("\"")!==-1) {
-      alert("Please select a tab name without quotes");
+    const doDelete = window.confirm(`Are you sure you want to delete the ${typeOfCode} code from ${state.tabNameToManage} tab?`)
+    if(!doDelete) {
+      console.log("Prevented deleteTab() further execution");
       return;
     }
     const tabs = state.tabs;
@@ -630,7 +564,31 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
   Panel = ( {children, testId}: {children: ReactNode; testId?: string;} ) => (
     <div data-testid={testId}>{children}</div>
   );
+  //#endregion
 
+  /** @param _
+   * ```json
+   *{
+   *· "_isAnalyticsEvent": true,
+   *· "context": [{
+   *·   "componentName": "tabs",
+   *·   "packageName": "@atlaskit/tabs",
+   *·   "packageVersion": "13.4.3"
+   *· }],
+   *· "handlers": [],
+   *· "hasFired": false,
+   *· "payload": {
+   *·   "action": "clicked",
+   *·   "actionSubject": "tabs",
+   *·   "attributes": {
+   *·     "componentName": "tabs",
+   *·     "packageName": "@atlaskit/tabs",
+   *·     "packageVersion": "13.4.3"
+   *·   }
+   *· }
+   *}
+   * ```
+   */
   render() {
     /*console.log(`ModalInterface.render/state: {
       "css": "${this.state.css}"
@@ -640,20 +598,41 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       ,"tabNameToManage": "${this.state.tabNameToManage}"
       ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}
     \n\n`);*/
-    return (<AuiTabs
-      css={this.state.css}
-      enableCrudButtons={this.state.enableCrudButtons}
-      javascript={this.state.javascript}
-      selectedTab={this.state.selectedTab}
-      tabs={this.state.tabs}
-      tabNameToManage={this.state.tabNameToManage}
-      onTextSettingsChange={this.onTextSettingsChange.bind(this)}
-      modifyTabsVarBasedOnUpsert={this.modifyTabsVarBasedOnUpsert.bind(this)}
-      upsertTab={this.upsertTab.bind(this)}
-      deleteTab={this.deleteTab.bind(this)}
-      renderCont={this.renderCont.bind(this)}
-      Panel={this.Panel}
-    />);
+    return (
+      <React.Fragment>
+        <Tabs id="tabsParent" onChange = {
+          (index, _) => console.log(`AuiTabs.render/selectedTab: ${this.state.tabs[index].label}.`)
+        }>
+          <TabList>{this.state.tabs.map((val) => (
+            <Tab testId={val.testId+"Tab"} key={val.testId+"Tab"}>
+              <span style={val.tabStyle}>{val.label}</span>
+            </Tab>
+          ))}</TabList>
+          {this.state.tabs.map((val,i) => (<TabPanel testId={val.testId+"TabPanel"} key={val.testId+"TabPanel"}>
+            <this.Panel testId={val.testId+"TPanel"} key={val.testId+"TPanel"}>{
+              val["isJavascript"] !== undefined ?
+                this.renderCont(val.isJavascript, this.props) :
+              val["label"] === "⚙" ?
+                <ManageAdditionalTabs
+                  css={this.state.css}
+                  enableCrudButtons={this.state.enableCrudButtons}
+                  javascript={this.state.javascript}
+                  selectedTab={this.state.selectedTab}
+                  tabs={this.state.tabs}
+                  tabNameToManage={this.state.tabNameToManage}
+                  onTextSettingsChange={this.onTextSettingsChange.bind(this)}
+                  modifyTabsVarBasedOnUpsert={this.modifyTabsVarBasedOnUpsert.bind(this)}
+                  upsertTab={this.upsertTab.bind(this)}
+                  deleteTab={this.deleteTab.bind(this)}
+                  renderCont={this.renderCont.bind(this)}
+                  Panel={this.Panel}
+                />
+              : null
+            }</this.Panel>
+          </TabPanel>))}
+        </Tabs>
+      </React.Fragment>
+    );
   }
 }
 
