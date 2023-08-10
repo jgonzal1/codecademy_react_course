@@ -11,6 +11,7 @@ interface CssJsModalInterfaceProps {
   css: string,
   enableCrudButtons: boolean,
   javascript: string,
+  //label: string,
   selectedTab: string,
   tabs: any,
   typeOfCode: string,
@@ -20,30 +21,32 @@ interface CssJsTabsProps {
   css: string,
   enableCrudButtons: boolean,
   javascript: string,
+  //label: string,
   selectedTab: string,
   tabs: any,
   tabNameToManage: string,
-  onTextSettingsChange: Function,
-  modifyTabsVarBasedOnUpsert: Function,
-  upsertTab: Function,
+  Panel: any,
   deleteTab: Function,
+  modifyTabsVarBasedOnUpsert: Function,
+  onTextSettingsChange: Function,
   renderCont: Function,
-  Panel: any
+  upsertTab: Function
 }
 interface CssJsTabsState {
   css: string,
   enableCrudButtons: boolean,
-  loaded?: boolean,
   javascript: string,
+  //label: string,
+  loaded?: boolean,
   selectedTab: string,
   tabs: any,
   tabNameToManage: string,
-  onTextSettingsChange?: Function,
-  modifyTabsVarBasedOnUpsert?: Function,
-  upsertTab?: Function,
+  Panel?: any,
   deleteTab?: Function,
+  modifyTabsVarBasedOnUpsert?: Function,
+  onTextSettingsChange?: Function,
   renderCont?: Function,
-  Panel?: any
+  upsertTab?: Function
 };
 
 interface CodeBodyProps {
@@ -52,6 +55,7 @@ interface CodeBodyProps {
   enableCrudButtons: boolean,
   isJavascript: boolean,
   javascript: string,
+  //label: string,
   onTextSettingsChange: Function
   tabName: string,
   testId: string,
@@ -63,6 +67,7 @@ interface CodeBodyState {
   enableCrudButtons: boolean,
   isJavascript: boolean,
   javascript: string,
+  //label: string,
   tabName: string,
   testId: string,
   typeOfCode: string,
@@ -79,6 +84,7 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
       enableCrudButtons: this.props.enableCrudButtons,
       isJavascript: this.props.isJavascript,
       javascript: this.props.javascript,
+      //label: this.props.label,
       tabName: this.props.tabName,
       testId: this.props.testId,
       typeOfCode: this.props.typeOfCode
@@ -170,6 +176,7 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       css: this.props.css,
       enableCrudButtons: this.props.enableCrudButtons,
       javascript: this.props.javascript,
+      //label: this.props.label,
       selectedTab: this.props.selectedTab,
       tabs: this.props.tabs,
       tabNameToManage: this.props.tabNameToManage,
@@ -256,6 +263,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       css : this.props.css,
       enableCrudButtons : this.props.enableCrudButtons,
       javascript : this.props.javascript,
+      //label: this.props.label,
       selectedTab : this.props.selectedTab,
       tabs : this.props.tabs,
       tabNameToManage : this.props.tabNameToManage,
@@ -357,6 +365,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
         enabled={enabled}
         isJavascript={isJavascript}
         javascript=''
+        //label={state.label}
         onTextSettingsChange={this.onTextSettingsChange.bind(this)}
         tabName={state.tabNameToManage}
         testId={state.tabNameToManage+"Tab"}
@@ -364,12 +373,13 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       />,
       "enabled": enabled,
       "isJavascript": isJavascript,
-      "label": state.tabNameToManage,
+      "label": state.tabNameToManage, //+ (isJavascript?".js":".css"),
       "tabStyle": { color: `var(--dark-${
         isJavascript?"yellow":"blue"
       })` },
       "testId": state.tabNameToManage+"Tab",
     };
+    //const label = state.tabNameToManage + (isJavascript?".js":".css");
     const tabExisted = state.tabs.filter(
       t => t.label===state.tabNameToManage
     );
@@ -393,7 +403,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
         "tabNameToManage":"${state.tabNameToManage}"\n}\n\n`
       );
       tabs = state.tabs.map(existingTab => {
-        if(existingTab.label === state.tabNameToManage) {
+        if(existingTab.label === state.tabNameToManage) { // label
           return tabToUpsert;
         } else {
           return existingTab;
@@ -420,23 +430,21 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
    *  ToDo TypeCode, Enabled and InnerContents behavior
    */
   upsertTab(state) {
-    //this.state actually works?
-
     if(state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
     const isJavascript = $("#typeCode")[0].checked; // ToDo make it react-dependant
     const enabled = $("#enabled")[0].checked; // ToDo make it react-dependant
+    // const label = state.tabNameToManage + (isJavascript?".js":".css");
     console.log(`ModalInterface.upsertTab/i
       /state: {
         "css": "${state.css}"
         ,"javascript": "${state.javascript}"
-        ,"tabNameToManage": "${state.tabNameToManage}"
         ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]
         ,"enabled": ${enabled},
         ,"isJavascript": ${isJavascript},
         ,"tabNameToManage": "${state.tabNameToManage}"\n}`
     );
     const previousTab = state.tabs.filter(
-      tab => tab.label === state.tabNameToManage
+      tab => tab.label === state.tabNameToManage // label
     )[0];
     let previousCustomTabCheckers = {};
     if(!!previousTab && Object.keys(previousTab)) {
@@ -483,15 +491,16 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       return;
     }
     const typeOfCode = state.isJavascript?"JS":"CSS";
+    // const label = state.tabNameToManage + (state.isJavascript?".js":".css");
     console.log(`ModalInterface.deleteTab/i
       /state: {
         "css": "${state.css}"
         ,"javascript": "${state.javascript}"
-        ,"typeOfCode": "${typeOfCode}"
         ,"tabNameToManage": "${state.tabNameToManage}"
+        ,"typeOfCode": "${typeOfCode}"
         ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}
     \n\n`);
-    const doDelete = window.confirm(`Are you sure you want to delete the ${typeOfCode} code from ${state.tabNameToManage} tab?`)
+    const doDelete = window.confirm(`Are you sure you want to delete the code from the ${state.tabNameToManage} tab?`)
     if(!doDelete) {
       console.log("Prevented deleteTab() further execution");
       return;
@@ -617,15 +626,16 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
                   css={this.state.css}
                   enableCrudButtons={this.state.enableCrudButtons}
                   javascript={this.state.javascript}
+                  //label={this.state.label}
                   selectedTab={this.state.selectedTab}
                   tabs={this.state.tabs}
                   tabNameToManage={this.state.tabNameToManage}
-                  onTextSettingsChange={this.onTextSettingsChange.bind(this)}
-                  modifyTabsVarBasedOnUpsert={this.modifyTabsVarBasedOnUpsert.bind(this)}
-                  upsertTab={this.upsertTab.bind(this)}
-                  deleteTab={this.deleteTab.bind(this)}
-                  renderCont={this.renderCont.bind(this)}
                   Panel={this.Panel}
+                  deleteTab={this.deleteTab.bind(this)}
+                  modifyTabsVarBasedOnUpsert={this.modifyTabsVarBasedOnUpsert.bind(this)}
+                  onTextSettingsChange={this.onTextSettingsChange.bind(this)}
+                  renderCont={this.renderCont.bind(this)}
+                  upsertTab={this.upsertTab.bind(this)}
                 />
               : null
             }</this.Panel>
@@ -644,15 +654,15 @@ root.render(<ModalInterface
   tabs={[{
     content: null, enabled: true,
     isJavascript: true,
-    label: "Default JS",
+    label: "default.js",
     tabStyle: { color: "var(--dark-yellow)" },
-    testId: "Default JSTab",
+    testId: "default.jsTab",
   }, {
     content: null, enabled: true,
     isJavascript: false,
-    label: "Default CSS",
+    label: "default.css",
     tabStyle: { color: "var(--dark-blue)" },
-    testId: "Default CSSTab",
+    testId: "default.cssTab",
   }, {
     content: null, label: "⚙",
     tabStyle: { fontWeight: "bolder", color: "var(--dark-gray)" },
