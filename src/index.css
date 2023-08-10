@@ -98,7 +98,7 @@ ul {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--light-gray);
+  background-color: var(--dark-blue);
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -114,10 +114,10 @@ ul {
   transition: .4s;
 }
 input:checked + .slider {
-  background-color: var(--light-patina);
+  background-color: var(--dark-yellow);
 }
 input:focus + .slider {
-  box-shadow: 0 0 0.1em var(--light-patina);
+  box-shadow: 0 0 0.1em var(--dark-yellow);
 }
 input:checked + .slider:before {
   -webkit-transform: translateX(0.9em);

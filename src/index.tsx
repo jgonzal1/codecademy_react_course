@@ -48,22 +48,24 @@ interface CssJsTabsState {
 
 interface CodeBodyProps {
   css: string,
+  enabled: boolean,
   enableCrudButtons: boolean,
   isJavascript: boolean,
   javascript: string,
-  selectedTab: string,
-  typeOfCode: string,
-  tabName: string,
   onTextSettingsChange: Function
+  tabName: string,
+  testId: string,
+  typeOfCode: string,
 }
 interface CodeBodyState {
   css: string,
+  enabled: boolean,
   enableCrudButtons: boolean,
   isJavascript: boolean,
   javascript: string,
-  selectedTab: string,
+  tabName: string,
+  testId: string,
   typeOfCode: string,
-  tabName: string
 };
 //#endregion
 
@@ -73,11 +75,12 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
     super(props)
     this.state = {
       css: this.props.css,
+      enabled: this.props.enabled,
       enableCrudButtons: this.props.enableCrudButtons,
       isJavascript: this.props.isJavascript,
       javascript: this.props.javascript,
-      selectedTab: this.props.selectedTab,
       tabName: this.props.tabName,
+      testId: this.props.testId,
       typeOfCode: this.props.typeOfCode
     }
   }
@@ -89,14 +92,22 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
       Object.keys(prevProps).filter(
         k => (typeof(this.props[k])!=="function" && prevProps[k]!==this.props[k])
       ).map(
-        k => `"${k}": {"prevProps":"${prevProps[k]}", "newProps":"${this.props[k]}"}`
+        k => `"${k}": {"prevProps":${
+          JSON.stringify(prevProps[k])
+        }, "newProps":${
+          JSON.stringify(this.props[k])
+        }}`
       ).toString() :
       "";
     update += stateDiff ?
       Object.keys(prevState).filter(
         k => (typeof(this.props[k])!=="function" && prevState[k]!==this.state[k])
       ).map(
-        k => `"${k}": {"prevState":"${prevState[k]}", "newProps":"${this.state[k]}"}`
+        k => `"${k}": {"prevState":${
+          JSON.stringify(prevState[k])
+        }, "newProps":${
+          JSON.stringify(this.state[k])
+        }}`
       ).toString() :
       "";
     if(update !== "") {
@@ -110,7 +121,6 @@ class CodeBody extends React.Component<CodeBodyProps, CodeBodyState> {
       ,"enableCrudButtons": ${this.state.enableCrudButtons}
       ,"isJavascript": "${this.state.isJavascript}"
       ,"javascript": "${this.state.javascript}"
-      ,"selectedTab": "${this.state.selectedTab}"
       ,"typeOfCode": "${this.state.typeOfCode}"\n}
     \n`);
     return (<div>
@@ -173,14 +183,22 @@ class ManageAdditionalTabs extends React.Component<CssJsTabsProps, CssJsTabsStat
       Object.keys(prevProps).filter(
         k => (typeof(this.props[k])!=="function" && prevProps[k]!==this.props[k])
       ).map(
-        k => `"${k}": {"prevProps":"${prevProps[k]}", "newProps":"${this.props[k]}"}`
+        k => `"${k}": {"prevProps":${
+          JSON.stringify(prevProps[k])
+        }, "newProps":${
+          JSON.stringify(this.props[k])
+        }}`
       ).toString() :
       "";
     update += stateDiff ?
       Object.keys(prevState).filter(
         k => (typeof(this.props[k])!=="function" && prevState[k]!==this.state[k])
       ).map(
-        k => `"${k}": {"prevState":"${prevState[k]}", "newProps":"${this.state[k]}"}`
+        k => `"${k}": {"prevState":${
+          JSON.stringify(prevState[k])
+        }, "newProps":${
+          JSON.stringify(this.state[k])
+        }}`
       ).toString() :
       "";
     if(update !== "") {
@@ -240,7 +258,7 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       javascript: this.props.javascript,
       selectedTab: this.props.selectedTab,
       tabs: this.props.tabs,
-      tabNameToManage: this.props.tabNameToManage,
+      tabNameToManage: this.props.tabNameToManage
     }
   }
 
@@ -251,19 +269,28 @@ class AuiTabs extends React.Component<CssJsTabsProps, CssJsTabsState> {
       Object.keys(prevProps).filter(
         k => (typeof(this.props[k])!=="function" && prevProps[k]!==this.props[k])
       ).map(
-        k => `"${k}": {"prevProps":"${prevProps[k]}", "newProps":"${this.props[k]}"}`
+        k => `"${k}": {"prevProps":${
+          JSON.stringify(prevProps[k])
+        }, "newProps":${
+          JSON.stringify(this.props[k])
+        }}`
       ).toString() :
       "";
     update += stateDiff ?
       Object.keys(prevState).filter(
         k => (typeof(this.props[k])!=="function" && prevState[k]!==this.state[k])
       ).map(
-        k => `"${k}": {"prevState":"${prevState[k]}", "newProps":"${this.state[k]}"}`
+        k => `"${k}": {"prevState":${
+          JSON.stringify(prevState[k])
+        }, "newProps":${
+          JSON.stringify(this.state[k])
+        }}`
       ).toString() :
       "";
     if(update !== "") {
       console.log(`AuiTabs did update: {\n  ${update}\n}`);
     }
+    //this.setState({tabsStateToParentCallback: this.props.tabs});
   }
 
   /** @param _
@@ -345,6 +372,8 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     }
   }
 
+  // stateInParentCallback(tabsStateFromChild){ this.setState({tabs:{...tabsStateFromChild}}); }
+
   onTextSettingsChange(e) {
     this.setState(
       //@ts-ignore-next-line
@@ -354,7 +383,7 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
           this.setState(
             { enableCrudButtons: true },
             () => {
-              console.log(`ModalInterface.onTextSettingsChange/]TN`);/*\n/state: {
+              console.log(`ModalInterface.onTextSettingsChange/]TN\n\n`);/*\n/state: {
                 "css": "${this.state.css}"
                 ,"enableCrudButtons": ${this.state.enableCrudButtons}
                 ,"javascript": "${this.state.javascript}"
@@ -382,40 +411,45 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
     );
   }
 
-  modifyTabsVarBasedOnUpsert(state) {
+  modifyTabsVarBasedOnUpsert(state, enabled, isJavascript) {
     console.log(`ModalInterface.modifyTabsVarBasedOnUpsert/i
       /state: {
         "css": "${state.css}"
+        ,"enabled: ${enabled}
         ,"enableCrudButtons": ${state.enableCrudButtons}
+        ,"isJavascript": ${isJavascript}
         ,"javascript": "${state.javascript}"
-        ,"selectedTab": "${state.selectedTab}"
-        ,"typeOfCode": "${state.typeOfCode}"
         ,"tabNameToManage": "${state.tabNameToManage}"
-        ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}
-    \n\n`);
+        ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}`
+    );
     const tabToUpsert = {
       "content": <CodeBody
         css=''
         enableCrudButtons={false}
-        isJavascript={state.isJavascript}
+        enabled={enabled}
+        isJavascript={isJavascript}
         javascript=''
-        selectedTab=''
-        tabName={state.tabNameToManage}
-        typeOfCode=''
         onTextSettingsChange={this.onTextSettingsChange.bind(this)}
+        tabName={state.tabNameToManage}
+        testId={state.tabNameToManage+"Tab"}
+        typeOfCode=''
       />,
-      "enabled": state.enabled,
-      "isJavascript": state.isJavascript,
+      "enabled": enabled,
+      "isJavascript": isJavascript,
       "label": state.tabNameToManage,
       "tabStyle": { color: `var(--dark-${
-        state.isJavascript?"yellow":"blue"
+        isJavascript?"yellow":"blue"
       })` },
       "testId": state.tabNameToManage+"Tab",
     };
+    const tabExisted = state.tabs.filter(
+      t => t.label===state.tabNameToManage
+    );
     let tabs = state.tabs;
-    if(!state.previousTab) {
-      console.log(`MngAddTbs.modTabsVarBasedOnUpsert/I: {
-        "tabNameToManage":"${state.tabNameToManage}"\n}\n\n`
+    if(!tabExisted.length) {
+      console.log(
+        `MngAddTbs.modTabsVarBasedOnUpsert/I: {
+        "tabNameToManage":"${state.tabNameToManage}"\n}`
       );
       tabs.push(tabToUpsert);
       let domTabs = document.querySelectorAll('[role="tablist"]')[0].children;
@@ -425,19 +459,20 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
           (domTabs.length+1).toString()
         )
       );
+      return tabs;
     } else {
       console.log(`MngAddTbs.modTabsVarBasedOnUpsert/M: {
         "tabNameToManage":"${state.tabNameToManage}"\n}\n\n`
       );
-      tabs = tabs.map(existingTab => {
+      tabs = state.tabs.map(existingTab => {
         if(existingTab.label === state.tabNameToManage) {
           return tabToUpsert;
         } else {
           return existingTab;
         }
       });
+      return tabs;
     }
-    return tabs;
   }
 
   /**
@@ -458,37 +493,32 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
  */
   upsertTab(state) {
     //this.state actually works?
+
+    if(state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
+    const isJavascript = $("#typeCode")[0].checked; // ToDo make it react-dependant
+    const enabled = $("#enabled")[0].checked; // ToDo make it react-dependant
     console.log(`ModalInterface.upsertTab/i
       /state: {
         "css": "${state.css}"
         ,"javascript": "${state.javascript}"
-        ,"typeOfCode": "${state.typeOfCode}"
         ,"tabNameToManage": "${state.tabNameToManage}"
-        ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}
-    \n\n`);
-    if(state.tabNameToManage.search("\"")!==-1) { alert("Please select a tab name without quotes"); return; }
-    const isJavascript = $("#typeCode")[0].checked;
-    const enabled = $("#enabled")[0].checked;
-    console.log(`MngAddTbs.upsertTab/uniques: {
-      "isJavascript": ${isJavascript},
-      "enabled": ${enabled},
-      "tabNameToManage": "${state.tabNameToManage}",
-      "existing tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]\n}
-    \n\n`);
+        ,"tabs.labels": ["${state.tabs.map(t=>t.label).join('","')}"]
+        ,"enabled": ${enabled},
+        ,"isJavascript": ${isJavascript},
+        ,"tabNameToManage": "${state.tabNameToManage}"\n}`
+    );
     const previousTab = state.tabs.filter(
       tab => tab.label === state.tabNameToManage
     )[0];
     let previousCustomTabCheckers = {};
-    if(!!previousTab && previousTab.length) {
-      previousCustomTabCheckers = previousTab.map(
-        t => {
-          return {
-            "enabled": t.enabled,
-            "isJavascript": t.isJavascript,
-            "testId": t.tabNameToManage+"Tab",
-          }
-        }
-      );
+    if(!!previousTab && Object.keys(previousTab)) {
+      previousCustomTabCheckers = {
+        "enabled": previousTab.enabled,
+        "isJavascript": previousTab.isJavascript,
+        "testId": previousTab.label+"Tab"
+      }
+    } else {
+      console.log("ModalInterface.upsertTab/previousTabNotFound:", previousTab);
     }
     const newCustomTabCheckers = {
         "enabled": enabled,
@@ -509,12 +539,14 @@ class ModalInterface extends React.Component<CssJsModalInterfaceProps, CssJsTabs
       console.log(`MngAddTbs.upsertTab/noChanges on Global JS/CSS tab Upsert`);
       return;
     }
-    const tabs = this.modifyTabsVarBasedOnUpsert(state)
-    console.log("MngAddTbs.upsertTab/tabsBefore:\n", tabs); /*
-    somehow it was already updated but wrong. ↓ useless
-    console.log("MngAddTbs.upsertTab/tabs2BChanged:\n", tabs);*/
-    this.setState(state => ({ tabs: Object.assign([], tabs) }));
-    /*console.log("MngAddTbs.upsertTab/tabsAfter:\n", state.tabs);*/
+    const tabs = this.modifyTabsVarBasedOnUpsert(state, enabled, isJavascript);
+    /*
+    console.log("MngAddTbs.upsertTab/tabsState:\n", tabs);
+    console.log("MngAddTbs.upsertTab/tabs2BChanged:\n", this.state.tabs); // won't work before next
+    this.setState(state => ({ tabs: Object.assign([], tabs) })); // worked once
+    */
+    this.setState({ tabs: Object.assign([], tabs) });
+    console.log("MngAddTbs.upsertTab/tabsAfter:\n", this.state.tabs, "\n\n");
   }
 
   deleteTab(state) {
