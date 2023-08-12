@@ -9,12 +9,16 @@
   <script src="libs/react.development.js"></script>
   <script src="libs/reactDom.development.js"></script>
   <script src="libs/babel.min.js">
-    // Note: for a production-ready setup with JSX:
-    // https://reactjs.org/docs/add-react-to-a-website.html#add-jsx-to-a-project
-    // In a larger project, you can use an integrated toolchain that includes JSX instead:
-    // https://reactjs.org/docs/create-a-new-react-app.html
-    // You can also use React without JSX, in which case you can remove Babel:
-    // https://reactjs.org/docs/react-without-jsx.html
+    /*
+    For a production-ready setup with JSX:
+    <https://reactjs.org/docs/add-react-to-a-website.html#add-jsx-to-a-project>
+
+    In a larger project, you can use an integrated toolchain that includes JSX instead:
+    <https://reactjs.org/docs/create-a-new-react-app.html>
+
+    You can also use React without JSX, in which case you can remove Babel:
+    <https://reactjs.org/docs/react-without-jsx.html>
+    */
   </script>
 
 </head>
@@ -23,25 +27,19 @@
   <!-- img placeholder https://source.unsplash.com/random/1200x400 -->
   <table id="root">
     <tr>
-      <td id="exercise1" rowSpan="5" style="overflow:hidden">1</td>
-      <td id="exercise2" rowSpan="4" style="overflow:hidden">2</td>
-      <td id="exercise3" style="height:1em">3</td>
+      <td id="exercise1" rowSpan="4" style="overflow: hidden"></td><!-- Spinning react -->
+      <td id="exercise2" rowSpan="4"></td><!-- Frog -->
+      <td id="exercise3" style="height:1em"></td><!-- Random number -->
     </tr>
     <tr>
-      <td id="exercise4" class="parent-of-h100" style="height:1.6em">4</td>
+      <td id="exercise4" class="parent-of-h100" style="height:2em"></td><!-- Hover -->
     </tr><tr>
-      <td id="exercise5" style="height:6em">5</td>
+      <td id="exercise5" style="height:6em"></td><!-- Props and list -->
     </tr><tr>
-      <td id="exercise6">6<iframe src="sololearnReactCourse.html" frameborder="0" style="height:2.5em"></iframe></td>
-    </tr><tr>
-      <td id="exercise7">7</td>
-      <td id="exercise8">8</td>
-    </tr><tr>
-      <td id="exercise9">9</td>
-      <td id="exercise10">10</td>
-      <td id="exercise11">11</td>
+      <td id="exercise6"></td><!-- TBD -->
     </tr>
   </table>
+  <script src="codecademyReactCourse.js" type="text/babel"></script>
   <script type="text/babel">
     (function codecademyReactCourse() {
       //#region F(x)s for imgs, ternaries and &&

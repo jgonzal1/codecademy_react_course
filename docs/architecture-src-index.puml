@@ -1,0 +1,77 @@
+@startuml architecture-src-index
+skinparam BackgroundColor #FFFFFF66
+skinparam activity {
+  BackgroundColor       #8EC29166
+  BackgroundColor<<b>>  #81A2BE44
+  BackgroundColor<<gr>> #CCCCCC66
+  BackgroundColor<<h>>  #00000000
+  BackgroundColor<<r>>  #DE935F44
+  BorderColor<<h>> #00000000
+  'Styling for Conditionals:
+  DiamondBackgroundColor #81A2BE44
+}
+skinparam note {
+  BackgroundColor #8EC29144
+  BorderThickness 0
+  FontSize 12
+  FontStyle italic
+}
+skinparam partition {
+  BackgroundColor      #81A2BE44
+  BackgroundColor<<g>> #8EC29144
+  BackgroundColor<<r>> #DE935F44
+}
+
+title Activity diagram for Ultimate\n\
+Customizer's Global JS & CSS
+start
+partition "src/index.tsx" {
+  :root.render();
+  partition ModalInterface <<g>> {
+  split
+    ->constructor;
+    :;
+  split again
+    :render();
+    partition AuiTabs <<g>> {
+      split
+        ->constructor;
+        :;
+      split again
+        :componentDidMount();
+        note right
+          this.setState
+          form parent
+        end note
+        split
+          partition ManageAdditionalTabs <<g>> {
+            split
+              :upsertTab();
+            split again
+              <<r>>:deleteTab();
+              end
+            split again
+              ->render;
+              :;
+            end split
+          }
+        split again
+          :renderCont();
+        end split
+      split again
+        -><b><color:#A54242>render();
+        :;
+      end split
+    }
+  split again
+  ->render\nContent();
+    <<gr>>:;
+  split again
+    ->buttons\nOK()\n;
+    <<gr>>:>
+    <<gr>>:;
+  end split
+  }
+}
+stop
+@enduml

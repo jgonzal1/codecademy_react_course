@@ -244,6 +244,20 @@ function AddPersonForm(props) {
   );
 }
 
+function PeopleList(props) {
+	const arr = props.data;
+	const listItems = arr.map((val, index) => <li key={index}> {val}</li>);
+	return <ul>{listItems}</ul>;
+}
+
+const contacts = ['James Smith', 'Thomas Anderson', 'Bruce Wayne'];
+const peopleList = (
+	<div>
+		<AddPersonForm />
+		<PeopleList data={contacts} />
+	</div>
+);
+
 /**
   * If the parent component uses this to pass down its `calculate()` function:
   * 
@@ -254,7 +268,5 @@ function AddPersonForm(props) {
   * The child call that function as `props.doStuff()`
   */
 function howToPassFxToChildren() {}
-
-
 
 reportWebVitals(console.log);
