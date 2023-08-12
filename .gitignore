@@ -17,3 +17,4 @@ libs/soundfontPlayer.min.js
 libs/tone.js
 libs/webrtcAdapter.js
 my-app/*
+*.lib.js
